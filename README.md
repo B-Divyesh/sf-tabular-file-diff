@@ -133,6 +133,13 @@ npm run build:site       # writes dist/site/index.html
 npm run dev
 ```
 
+For the browser accessibility suite, install its Chromium build once and run:
+
+```bash
+npx playwright install chromium
+npm run test:a11y
+```
+
 The package is ready to publish with `python -m build`; registry credentials
 are intentionally not part of this repository.
 

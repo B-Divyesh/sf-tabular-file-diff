@@ -113,3 +113,12 @@ def test_no_changes(tmp_path: Path) -> None:
     result = diff_files(old, new, key="id")
     assert not result.has_changes
     assert result.unchanged_count == 1
+
+
+def test_header_only_csvs_are_a_valid_empty_comparison(tmp_path: Path) -> None:
+    old = write_csv(tmp_path / "old.csv", "id,name\n")
+    new = write_csv(tmp_path / "new.csv", "id,name\n")
+    result = diff_files(old, new, key="id")
+    assert not result.has_changes
+    assert result.old_count == result.new_count == 0
+    assert result.added.schema.names == ["id", "name"]

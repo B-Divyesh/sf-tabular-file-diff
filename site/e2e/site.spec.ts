@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
-test("home is accessible and the CSV demo works", async ({ page }, testInfo) => {
+test("home is accessible and the CSV demo works", async ({ context, page }, testInfo) => {
   const errors: string[] = [];
   page.on("console", (message) => {
     if (message.type() === "error") errors.push(message.text());
@@ -21,11 +21,17 @@ test("home is accessible and the CSV demo works", async ({ page }, testInfo) => 
 
   await page.getByRole("tab", { name: "DVC" }).click();
   await expect(page.getByRole("tabpanel", { name: "DVC" })).toBeVisible();
+  await page.getByRole("tab", { name: "DVC" }).press("ArrowLeft");
+  await expect(page.getByRole("tabpanel", { name: "Git" })).toBeVisible();
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
     .analyze();
   expect(results.violations).toEqual([]);
   expect(errors).toEqual([]);
+
+  await context.setOffline(true);
+  await expect(page.locator("#offline-notice")).toBeVisible();
+  await context.setOffline(false);
 
   if (testInfo.project.name === "mobile") {
     const widths = await page.evaluate(() => ({
