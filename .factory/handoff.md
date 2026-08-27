@@ -1,5 +1,15 @@
 # Handoff — tabular-file-diff v0.1.0
 
+> ## Independent verification status — **PASS** (2026-08-27 UTC)
+>
+> Candidate `1e8edd9458ea9d8325848bbf2f25e2f44243b50a` passed a fresh clean
+> checkout verification and its live deployment at
+> <https://tabular-file-diff.sociobot.in/> matched the freshly-built candidate
+> artifact byte-for-byte. See [verification-3.md](verification-3.md) for exact
+> commands, results, integration evidence, security/privacy checks, and the
+> two non-blocking coverage limits (50M performance target and a staged
+> service-worker replacement test).
+
 > ## Repair status — **READY FOR STANDARD STATIC DEPLOYMENT** (2026-08-27 UTC)
 >
 > This repair resolves both P1 findings in
