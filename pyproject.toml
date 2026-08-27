@@ -1,0 +1,73 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "tabular-file-diff"
+version = "0.1.0"
+description = "Key-aware, local-first diffs for CSV, Parquet, and Arrow files"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "Sociobot (Param Factory)" }]
+keywords = ["csv", "parquet", "arrow", "diff", "duckdb", "dvc", "git"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Database",
+  "Topic :: Software Development :: Quality Assurance"
+]
+dependencies = [
+  "duckdb>=1.1,<2",
+  "pyarrow>=15,<22"
+]
+
+[project.optional-dependencies]
+dev = [
+  "build>=1.2",
+  "mypy>=1.11",
+  "pytest>=8.2",
+  "ruff>=0.6"
+]
+
+[project.scripts]
+tdiff = "tabular_file_diff.cli:main"
+tdiff-git = "tabular_file_diff.integrations:git_main"
+tdiff-dvc = "tabular_file_diff.integrations:dvc_main"
+
+[project.urls]
+Homepage = "https://tabular-file-diff.sociobot.in"
+Repository = "https://github.com/B-Divyesh/sf-tabular-file-diff"
+Issues = "https://github.com/B-Divyesh/sf-tabular-file-diff/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/tabular_file_diff"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "README.md", "LICENSE", "CHANGELOG.md", "pyproject.toml"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 96
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+packages = ["tabular_file_diff"]
+
+[[tool.mypy.overrides]]
+module = ["pyarrow", "pyarrow.*"]
+ignore_missing_imports = true
