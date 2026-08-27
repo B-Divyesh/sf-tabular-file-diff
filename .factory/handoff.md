@@ -1,14 +1,14 @@
 # Handoff — tabular-file-diff v0.1.0
 
-> ## Repair status — **READY FOR STANDARD STATIC DOCS DEPLOYMENT** (2026-08-27 UTC)
+> ## Independent verification status — **FAIL** (2026-08-27 UTC)
 >
-> This repair is based on independent-verification report commit
-> `64bd8d27e9853ada943db6f37c079c2cd8f61a4b` for candidate
-> `96890562acd72b3749e9e15aff3c80031ab345ff`. The documented Git external-diff
-> workflow now completes successfully for a changed CSV, and `npm run test:a11y`
-> starts its build server from the repository root. The static-host configuration
-> now also supplies a self-only CSP and denies framing. The original report is
-> retained in [verification.md](verification.md) as historical evidence.
+> Candidate `a4ce405d0ea20285540c3fdad9669176c2849977` and the deployed site at
+> <https://tabular-file-diff.sociobot.in/> match byte-for-byte, but release is
+> blocked by two CLI/API data-correctness defects documented in
+> [verification-2.md](verification-2.md): an exact `--tolerance 0.01` boundary
+> (`1.0` vs `1.01`) is reported as modified, and an unterminated quoted CSV is
+> silently diffed instead of rejected. Do not mark this release PASS or publish
+> the package until both regressions are fixed and independently reverified.
 
 ## Repair details
 
@@ -71,7 +71,7 @@ The factory deploy command is exactly `npm run build:site`. It produces
 Ready-to-publish distributions are produced with `python -m build`; do not
 publish from this worker.
 
-## Verification recorded on 2026-08-27
+## Historical builder verification (superseded by the FAIL above)
 
 - Python: clean virtualenv install via `python -m pip install -e '.[dev]'`;
   16 pytest tests passed; Ruff clean; strict mypy clean; isolated sdist and
@@ -85,11 +85,10 @@ publish from this worker.
   mobile horizontal overflow.
 - Static deployment artifact: `npm run build:site` produced `dist/site`,
   including the updated `staticwebapp.config.json` headers.
-- Deployment handoff: commit `bd63887` was pushed to `origin/main`. The public
-  endpoint remained healthy but still served the prior artifact after the
-  bounded propagation check (its `Last-Modified` was 19:30:59 UTC and did not
-  yet expose CSP/X-Frame-Options); the factory's standard static publish step
-  must promote this pushed artifact before those headers can be live-verified.
+- Deployment handoff at that time: commit `bd63887` was pushed to `origin/main`
+  while the public endpoint still served an earlier artifact. This is historical
+  only: the independent verifier subsequently SHA-256 matched all tested live
+  artifacts to candidate `a4ce405d0ea20285540c3fdad9669176c2849977`.
 - Supply chain: `npm audit --audit-level=high` reported zero vulnerabilities.
 - Production assets: initial JS 7.35 KB (3.13 KB gzip), CSS 13.39 KB (3.75 KB
   gzip), hero WebP 102.27 KB. All are below the 200/50/300 KB budgets.
@@ -102,6 +101,13 @@ publish from this worker.
 
 ## Known gaps and next steps
 
+- **P1 release blocker:** exact `--tolerance 0.01` handling falsely reports
+  `1.0` versus `1.01` as modified. Implement and test the intended inclusive
+  absolute-tolerance boundary.
+- **P1 release blocker:** the CLI/API silently accepts an unterminated quoted
+  CSV and returns a normal diff. Reject malformed CSV with exit status 2,
+  consistent with the browser demo.
+
 - The brief's 50-million-row / 60-second success target was not directly tested
   in this container. Add a reproducible cold-cache benchmark matrix across wide
   schemas and laptop-class memory before making that claim publicly.
@@ -112,8 +118,7 @@ publish from this worker.
   keys, tolerance, Parquet/Arrow, and large files are available in the CLI/API.
 - DVC integration shells out to an installed `dvc` executable; it was covered by
   an adapter test but not against a live remote in this disposable environment.
-- DuckDB's CSV scanner intentionally remains permissive for malformed quoted
-  CSV. This repair preserves the package's existing parsing/API behavior; the
-  browser demo separately presents a clear malformed-quote error.
+- Rerun independent verification after the two P1 fixes; the detailed current
+  evidence and reproduction steps are in [verification-2.md](verification-2.md).
 - No PyPI release was made; factory credentials and release automation own that
   step.
