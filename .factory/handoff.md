@@ -85,6 +85,11 @@ publish from this worker.
   mobile horizontal overflow.
 - Static deployment artifact: `npm run build:site` produced `dist/site`,
   including the updated `staticwebapp.config.json` headers.
+- Deployment handoff: commit `bd63887` was pushed to `origin/main`. The public
+  endpoint remained healthy but still served the prior artifact after the
+  bounded propagation check (its `Last-Modified` was 19:30:59 UTC and did not
+  yet expose CSP/X-Frame-Options); the factory's standard static publish step
+  must promote this pushed artifact before those headers can be live-verified.
 - Supply chain: `npm audit --audit-level=high` reported zero vulnerabilities.
 - Production assets: initial JS 7.35 KB (3.13 KB gzip), CSS 13.39 KB (3.75 KB
   gzip), hero WebP 102.27 KB. All are below the 200/50/300 KB budgets.
