@@ -1,17 +1,29 @@
 # Handoff — tabular-file-diff v0.1.0
 
-> ## Independent verification status — **FAIL** (2026-08-27 UTC)
+> ## Repair status — **READY FOR STANDARD STATIC DEPLOYMENT** (2026-08-27 UTC)
 >
-> Candidate `a4ce405d0ea20285540c3fdad9669176c2849977` and the deployed site at
-> <https://tabular-file-diff.sociobot.in/> match byte-for-byte, but release is
-> blocked by two CLI/API data-correctness defects documented in
-> [verification-2.md](verification-2.md): an exact `--tolerance 0.01` boundary
-> (`1.0` vs `1.01`) is reported as modified, and an unterminated quoted CSV is
-> silently diffed instead of rejected. Do not mark this release PASS or publish
-> the package until both regressions are fixed and independently reverified.
+> This repair resolves both P1 findings in
+> [verification-2.md](verification-2.md). Numeric differences at the documented
+> inclusive `--tolerance` boundary are unchanged, and CSV/CSV.GZ inputs with an
+> unterminated quoted field now fail safely through the API and CLI (CLI exit
+> status `2`). The Standard static artifact is `dist/site` from `npm run
+> build:site`; publishing remains owned by the factory.
 
 ## Repair details
 
+- Tolerance now applies as the documented inclusive comparison
+  `abs(old - new) <= tolerance`. For a nonzero tolerance, the engine allows
+  only eight ULPs of the tolerance value to absorb IEEE-754 representation
+  noise at a decimal boundary. This makes `1.0` versus `1.01` unchanged at
+  `--tolerance 0.01` without introducing a relative tolerance.
+- Added a streaming, byte-oriented CSV/CSV.GZ quote validator before DuckDB's
+  intentionally permissive scanner. It rejects an unclosed quoted field with
+  `Malformed CSV input …: unterminated quoted field`; the CLI reports it on
+  stderr and exits `2`.
+- Added exact API and CLI regressions for both release blockers, plus a
+  clean-wheel consumer test that builds the distribution, installs it into a
+  fresh virtual environment outside the source tree, and exercises the safe
+  tolerance and malformed-CSV CLI paths.
 - `tdiff-git` translates `tdiff`'s successful difference status (`1`) to `0`,
   which is the success status Git requires from an external diff driver. Invalid
   input and operational failures remain non-zero. File additions/removals also
@@ -71,7 +83,21 @@ The factory deploy command is exactly `npm run build:site`. It produces
 Ready-to-publish distributions are produced with `python -m build`; do not
 publish from this worker.
 
-## Historical builder verification (superseded by the FAIL above)
+## Current verification — 2026-08-27
+
+- `pytest`: **21 passed**, including the direct API/CLI P1 regressions and a
+  fresh-wheel consumer install.
+- `ruff check src tests` and `mypy src/tabular_file_diff`: passed.
+- `python -m build`: passed; produced sdist and wheel in `dist/`.
+- `npm ci`, `npm test`, and `npm run build:site`: passed. The production asset
+  report is 7.35 KB JavaScript (3.13 KB gzip), 13.39 KB CSS (3.75 KB gzip), and
+  102.27 KB WebP hero; all are within the stated static budgets.
+- `npm audit --audit-level=high`: 0 vulnerabilities.
+- After installing the pinned Playwright Chromium binary, `npm run test:a11y`:
+  **6 passed** across desktop/mobile home, privacy, and terms checks. The suite
+  includes console, keyboard/demo, overflow, and axe serious/critical coverage.
+
+## Historical pre-repair verification
 
 - Python: clean virtualenv install via `python -m pip install -e '.[dev]'`;
   16 pytest tests passed; Ruff clean; strict mypy clean; isolated sdist and
@@ -101,13 +127,6 @@ publish from this worker.
 
 ## Known gaps and next steps
 
-- **P1 release blocker:** exact `--tolerance 0.01` handling falsely reports
-  `1.0` versus `1.01` as modified. Implement and test the intended inclusive
-  absolute-tolerance boundary.
-- **P1 release blocker:** the CLI/API silently accepts an unterminated quoted
-  CSV and returns a normal diff. Reject malformed CSV with exit status 2,
-  consistent with the browser demo.
-
 - The brief's 50-million-row / 60-second success target was not directly tested
   in this container. Add a reproducible cold-cache benchmark matrix across wide
   schemas and laptop-class memory before making that claim publicly.
@@ -118,7 +137,8 @@ publish from this worker.
   keys, tolerance, Parquet/Arrow, and large files are available in the CLI/API.
 - DVC integration shells out to an installed `dvc` executable; it was covered by
   an adapter test but not against a live remote in this disposable environment.
-- Rerun independent verification after the two P1 fixes; the detailed current
-  evidence and reproduction steps are in [verification-2.md](verification-2.md).
+- The new package behavior should be independently reverified before a PyPI
+  publish; [verification-2.md](verification-2.md) remains the historical report
+  that motivated this repair.
 - No PyPI release was made; factory credentials and release automation own that
   step.

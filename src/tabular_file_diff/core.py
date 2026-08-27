@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import gzip
+import math
 from collections.abc import Sequence
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Protocol
 
 import duckdb
 import pyarrow as pa
@@ -15,6 +17,10 @@ import pyarrow.ipc as ipc
 
 class DiffError(ValueError):
     """Raised when inputs cannot be compared safely."""
+
+
+class _ByteReader(Protocol):
+    def read(self, size: int = -1) -> bytes: ...
 
 
 @dataclass(frozen=True)
@@ -127,6 +133,49 @@ def _read_arrow(path: Path) -> pa.Table:
             return ipc.open_stream(source).read_all()
 
 
+def _has_unterminated_csv_quote(source: _ByteReader) -> bool:
+    """Return whether a streaming CSV source finishes inside a quoted field."""
+    quoted = False
+    quote_pending = False
+    while chunk := source.read(64 * 1024):
+        for byte in chunk:
+            if quote_pending:
+                quote_pending = False
+                if byte == ord('"'):
+                    # A doubled quote is an escaped literal quote.
+                    continue
+                quoted = False
+            if byte == ord('"'):
+                if quoted:
+                    # Wait for the next byte to distinguish a closing quote
+                    # from a doubled escaped quote.
+                    quote_pending = True
+                else:
+                    quoted = True
+    return quoted and not quote_pending
+
+
+def _validate_csv_quotes(path: Path) -> None:
+    """Reject an unclosed quoted field before DuckDB's permissive CSV scan.
+
+    DuckDB intentionally accepts some malformed CSV records as plain text.  A
+    dangling quote is unsafe for a diff because it can silently join records,
+    so match the browser demo's CSV rule before handing the file to DuckDB.
+    The scan is byte-oriented and streaming; it does not materialize the file.
+    """
+    try:
+        if path.name.lower().endswith(".csv.gz"):
+            with gzip.open(path, "rb") as source:
+                unterminated = _has_unterminated_csv_quote(source)
+        else:
+            with path.open("rb") as source:
+                unterminated = _has_unterminated_csv_quote(source)
+    except OSError as error:
+        raise DiffError(f"Could not read CSV input {path}: {error}") from error
+    if unterminated:
+        raise DiffError(f"Malformed CSV input {path}: unterminated quoted field")
+
+
 def _register_source(connection: duckdb.DuckDBPyConnection, name: str, path: Path) -> None:
     lower = path.name.lower()
     if not path.is_file():
@@ -134,7 +183,8 @@ def _register_source(connection: duckdb.DuckDBPyConnection, name: str, path: Pat
     if lower.endswith((".parquet", ".pq")):
         reader = f"read_parquet({_literal(str(path))}, union_by_name = true)"
     elif lower.endswith((".csv", ".csv.gz")):
-        reader = f"read_csv_auto({_literal(str(path))}, header = true)"
+        _validate_csv_quotes(path)
+        reader = f"read_csv_auto({_literal(str(path))}, header = true, strict_mode = true)"
     elif lower.endswith((".arrow", ".ipc", ".feather")):
         registered = f"_{name}_arrow"
         try:
@@ -186,10 +236,16 @@ def _change_expression(
     new = f"n.{_ident(column)}"
     distinct = f"{old} IS DISTINCT FROM {new}"
     if tolerance and _is_numeric(old_type) and _is_numeric(new_type):
+        # CSV numeric values are commonly IEEE doubles.  An exact decimal
+        # boundary such as 1.01 - 1.0 can be a few ULPs larger than 0.01 after
+        # binary conversion.  Keep the documented inclusive boundary stable
+        # by allowing only that representational noise, not a relative error.
+        effective_tolerance = tolerance + 8 * math.ulp(tolerance)
         return (
             f"({distinct} AND ("
             f"{old} IS NULL OR {new} IS NULL OR "
-            f"abs(CAST({old} AS DOUBLE) - CAST({new} AS DOUBLE)) > {tolerance!r}))"
+            f"abs(CAST({old} AS DOUBLE) - CAST({new} AS DOUBLE)) "
+            f"> {effective_tolerance!r}))"
         )
     if old_type != new_type:
         return f"CAST({old} AS VARCHAR) IS DISTINCT FROM CAST({new} AS VARCHAR)"
@@ -224,8 +280,8 @@ def diff_files(
         raise DiffError("At least one key column is required")
     if len(set(keys)) != len(keys):
         raise DiffError("Key columns must not be repeated")
-    if tolerance < 0:
-        raise DiffError("Tolerance must be zero or greater")
+    if not math.isfinite(tolerance) or tolerance < 0:
+        raise DiffError("Tolerance must be a finite number that is zero or greater")
     if max_rows is not None and max_rows < 0:
         raise DiffError("max_rows must be zero or greater")
 

@@ -33,9 +33,13 @@ tdiff old.csv new.csv --key tenant_id,event_id
 tdiff old.arrow new.arrow --key id --tolerance 0.001
 ```
 
-`--tolerance` is an **absolute** tolerance applied only when both versions of a
-column are numeric. Null versus non-null is always a change. It defaults to `0`,
-so floating-point comparison is exact.
+`--tolerance` is an **absolute, inclusive** tolerance applied only when both
+versions of a column are numeric: a row is unchanged when
+`abs(old - new) <= tolerance`, including the exact boundary. Null versus
+non-null is always a change. It defaults to `0`, so floating-point comparison
+is exact. The comparison absorbs only a few IEEE-754 rounding units at a
+nonzero boundary, preventing decimal CSV values such as `1.0` and `1.01` from
+being falsely reported as outside `--tolerance 0.01`.
 
 Write a standalone, offline HTML report or machine-readable JSON:
 
@@ -81,7 +85,8 @@ result = diff_files(
 
 Supported inputs are `.csv`, `.csv.gz`, `.parquet`, `.pq`, `.arrow`, `.ipc`,
 and `.feather`. Arrow IPC inputs are registered as Arrow tables; Parquet and CSV
-are scanned directly by DuckDB.
+are scanned directly by DuckDB. CSV input with an unterminated quoted field is
+rejected rather than silently compared.
 
 ### Git
 

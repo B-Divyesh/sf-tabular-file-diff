@@ -6,6 +6,13 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- Made nonzero numeric tolerances inclusive at their decimal boundary, without
+  IEEE-754 round-off falsely reporting a change.
+- Reject CSV and CSV.GZ inputs with an unterminated quoted field before they
+  can be silently compared by the CSV scanner.
+
 ## [0.1.0] - 2026-08-27
 
 ### Added

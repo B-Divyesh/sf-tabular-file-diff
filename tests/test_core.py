@@ -45,6 +45,25 @@ def test_composite_key_and_absolute_numeric_tolerance(tmp_path: Path) -> None:
     assert result.modified.column_names[:2] == ["tenant", "id"]
 
 
+def test_exact_numeric_tolerance_boundary_is_inclusive(tmp_path: Path) -> None:
+    old = write_csv(tmp_path / "old.csv", "id,value\n1,1.0\n")
+    new = write_csv(tmp_path / "new.csv", "id,value\n1,1.01\n")
+
+    result = diff_files(old, new, key="id", tolerance=0.01)
+
+    assert result.modified_count == 0
+    assert result.unchanged_count == 1
+    assert result.column_changes == {"value": 0}
+
+
+def test_unterminated_quoted_csv_is_rejected(tmp_path: Path) -> None:
+    malformed = write_csv(tmp_path / "malformed.csv", 'id,name\n1,"unterminated\n')
+    valid = write_csv(tmp_path / "valid.csv", "id,name\n1,Ada\n")
+
+    with pytest.raises(DiffError, match="Malformed CSV input .*unterminated quoted field"):
+        diff_files(malformed, valid, key="id")
+
+
 def test_schema_changes_are_reported_without_false_row_modifications(tmp_path: Path) -> None:
     old = write_csv(tmp_path / "old.csv", "id,name\n1,Ada\n")
     new = write_csv(tmp_path / "new.csv", "id,name,active\n1,Ada,true\n")

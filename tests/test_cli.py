@@ -42,6 +42,36 @@ def test_cli_error_is_exit_two(tmp_path: Path, capsys: object) -> None:
     assert "File not found" in capsys.readouterr().err  # type: ignore[attr-defined]
 
 
+def test_cli_exact_tolerance_boundary_is_unchanged(tmp_path: Path, capsys: object) -> None:
+    old = tmp_path / "old.csv"
+    new = tmp_path / "new.csv"
+    old.write_text("id,value\n1,1.0\n", encoding="utf-8")
+    new.write_text("id,value\n1,1.01\n", encoding="utf-8")
+
+    assert run([str(old), str(new), "--key", "id", "--tolerance", "0.01", "--json"]) == 0
+    output = json.loads(capsys.readouterr().out)  # type: ignore[attr-defined]
+    assert output["counts"] == {
+        "old": 1,
+        "new": 1,
+        "added": 0,
+        "removed": 0,
+        "modified": 0,
+        "unchanged": 1,
+    }
+
+
+def test_cli_unterminated_quoted_csv_is_exit_two(tmp_path: Path, capsys: object) -> None:
+    malformed = tmp_path / "malformed.csv"
+    valid = tmp_path / "valid.csv"
+    malformed.write_text('id,name\n1,"unterminated\n', encoding="utf-8")
+    valid.write_text("id,name\n1,Ada\n", encoding="utf-8")
+
+    assert run([str(malformed), str(valid), "--key", "id", "--json"]) == 2
+    error = capsys.readouterr().err  # type: ignore[attr-defined]
+    assert "Malformed CSV input" in error
+    assert "unterminated quoted field" in error
+
+
 def test_git_driver_handles_file_level_addition(capsys: object) -> None:
     code = git_run(
         [
