@@ -1,5 +1,18 @@
 # Handoff — tabular-file-diff v0.1.0
 
+> ## Independent verification status — **FAIL** (2026-08-27 UTC)
+>
+> Candidate `96890562acd72b3749e9e15aff3c80031ab345ff` was independently
+> checked against the researched brief and live
+> <https://tabular-file-diff.sociobot.in/>. Do **not** release this candidate as
+> verified. The documented `git diff` integration aborts with `fatal: external
+> diff died` on an actual changed CSV (Git exit 128), and `npm run test:a11y`
+> cannot start from a clean checkout because Playwright executes its root npm
+> script from `site/`. See [verification.md](verification.md) for exact commands,
+> full evidence, severity-ordered defects, live/candidate SHA matches, and
+> required remediation. This notice supersedes the positive verification claims
+> below where they conflict.
+
 ## What shipped
 
 - Typed Python package (`src` layout) built on DuckDB and PyArrow.
