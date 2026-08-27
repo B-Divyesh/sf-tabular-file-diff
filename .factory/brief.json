@@ -1,0 +1,10 @@
+{
+  "slug": "tabular-file-diff",
+  "title": "Key-aware diff for CSV/Parquet/Arrow files with git and DVC integration",
+  "user": "Data engineer or analyst who keeps Parquet/CSV snapshots in a repo or DVC and needs added/removed/changed rows and columns between two versions — at millions of rows — as a terminal summary and an HTML report.",
+  "smallest_useful_product": "tdiff a.parquet b.parquet --key id prints row counts added/removed/modified, per-column change counts, schema differences and sample changed rows; --html writes a self-contained report; a git difftool driver plus .gitattributes recipe; Python API returning Arrow tables of diffs. Built on DuckDB.",
+  "artifact_class": "library-pypi",
+  "monetization": "free",
+  "constraints": "Memory for unkeyed diffs; floating-point tolerance semantics must be explicit; no data leaves the machine.",
+  "state": "RESEARCHED"
+}
