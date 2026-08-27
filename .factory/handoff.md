@@ -6,8 +6,8 @@
 > [verification-2.md](verification-2.md). Numeric differences at the documented
 > inclusive `--tolerance` boundary are unchanged, and CSV/CSV.GZ inputs with an
 > unterminated quoted field now fail safely through the API and CLI (CLI exit
-> status `2`). The Standard static artifact is `dist/site` from `npm run
-> build:site`; publishing remains owned by the factory.
+> status `2`). The Standard static artifact from `npm run build:site` was
+> deployed successfully to <https://tabular-file-diff.sociobot.in/>.
 
 ## Repair details
 
@@ -96,6 +96,11 @@ publish from this worker.
 - After installing the pinned Playwright Chromium binary, `npm run test:a11y`:
   **6 passed** across desktop/mobile home, privacy, and terms checks. The suite
   includes console, keyboard/demo, overflow, and axe serious/critical coverage.
+- Standard static deploy: Azure Static Web Apps deployment
+  `cf529079-058c-46c7-bd09-076adfb29980` succeeded. The custom-domain HTTPS
+  check returned `200`; the post-deploy browser check loaded in 803 ms with no
+  console errors, one `h1`, an English document language, a `main` landmark,
+  no images missing alt text, and no unlabeled buttons.
 
 ## Historical pre-repair verification
 
