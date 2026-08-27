@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
+import shlex
 import subprocess
+import sys
 from pathlib import Path
 
 from tabular_file_diff.cli import run
@@ -54,8 +56,57 @@ def test_git_driver_handles_file_level_addition(capsys: object) -> None:
             "100644",
         ]
     )
-    assert code == 1
+    assert code == 0
     assert "file added" in capsys.readouterr().out  # type: ignore[attr-defined]
+
+
+def test_git_external_diff_handles_changed_csv(tmp_path: Path) -> None:
+    """The documented Git driver must not make ``git diff`` fail on changes."""
+    repository = tmp_path / "repository"
+    repository.mkdir()
+
+    def git(*args: str) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(
+            ["git", *args],
+            cwd=repository,
+            check=True,
+            text=True,
+            capture_output=True,
+        )
+
+    git("init", "--quiet")
+    git("config", "user.email", "tests@example.invalid")
+    git("config", "user.name", "tdiff tests")
+    (repository / ".gitattributes").write_text("*.csv diff=tdiff\n", encoding="utf-8")
+    snapshot = repository / "snapshot.csv"
+    snapshot.write_text("id,value\n1,old\n2,stay\n", encoding="utf-8")
+    git("add", ".gitattributes", "snapshot.csv")
+    git("commit", "--quiet", "-m", "initial snapshot")
+
+    driver = tmp_path / "tdiff-git"
+    driver.write_text(
+        "#!/bin/sh\n"
+        f"exec {shlex.quote(sys.executable)} -c "
+        f"{shlex.quote('from tabular_file_diff.integrations import git_main; git_main()')} \"$@\"\n",
+        encoding="utf-8",
+    )
+    driver.chmod(0o755)
+    git("config", "diff.tdiff.command", f"{driver} --key id")
+
+    snapshot.write_text("id,value\n1,new\n3,added\n", encoding="utf-8")
+    result = subprocess.run(
+        ["git", "diff", "--", "snapshot.csv"],
+        cwd=repository,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 0
+    assert "fatal: external diff died" not in result.stderr
+    assert "+ added                 1" in result.stdout
+    assert "- removed               1" in result.stdout
+    assert "~ modified              1" in result.stdout
 
 
 def test_dvc_driver_materializes_a_revision(

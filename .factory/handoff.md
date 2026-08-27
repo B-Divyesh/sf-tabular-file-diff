@@ -1,17 +1,29 @@
 # Handoff — tabular-file-diff v0.1.0
 
-> ## Independent verification status — **FAIL** (2026-08-27 UTC)
+> ## Repair status — **READY FOR STANDARD STATIC DOCS DEPLOYMENT** (2026-08-27 UTC)
 >
-> Candidate `96890562acd72b3749e9e15aff3c80031ab345ff` was independently
-> checked against the researched brief and live
-> <https://tabular-file-diff.sociobot.in/>. Do **not** release this candidate as
-> verified. The documented `git diff` integration aborts with `fatal: external
-> diff died` on an actual changed CSV (Git exit 128), and `npm run test:a11y`
-> cannot start from a clean checkout because Playwright executes its root npm
-> script from `site/`. See [verification.md](verification.md) for exact commands,
-> full evidence, severity-ordered defects, live/candidate SHA matches, and
-> required remediation. This notice supersedes the positive verification claims
-> below where they conflict.
+> This repair is based on independent-verification report commit
+> `64bd8d27e9853ada943db6f37c079c2cd8f61a4b` for candidate
+> `96890562acd72b3749e9e15aff3c80031ab345ff`. The documented Git external-diff
+> workflow now completes successfully for a changed CSV, and `npm run test:a11y`
+> starts its build server from the repository root. The static-host configuration
+> now also supplies a self-only CSP and denies framing. The original report is
+> retained in [verification.md](verification.md) as historical evidence.
+
+## Repair details
+
+- `tdiff-git` translates `tdiff`'s successful difference status (`1`) to `0`,
+  which is the success status Git requires from an external diff driver. Invalid
+  input and operational failures remain non-zero. File additions/removals also
+  print their useful notice and complete successfully.
+- Added a regression that initializes a real temporary Git repository, configures
+  the documented `diff.tdiff.command`, changes a CSV (one added, one removed,
+  one modified), and asserts `git diff` exits `0` without `external diff died`.
+- Playwright's `webServer` now has the repository root as its working directory,
+  so its `npm run build:site` command resolves from a clean checkout.
+- Added `Content-Security-Policy` (`frame-ancestors 'none'`) and
+  `X-Frame-Options: DENY` to `staticwebapp.config.json`. All script, style,
+  image, connection, font, and worker sources remain local to the site.
 
 ## What shipped
 
@@ -61,13 +73,18 @@ publish from this worker.
 
 ## Verification recorded on 2026-08-27
 
-- Python: 15 pytest tests passed; Ruff clean; strict mypy clean.
+- Python: clean virtualenv install via `python -m pip install -e '.[dev]'`;
+  16 pytest tests passed; Ruff clean; strict mypy clean; isolated sdist and
+  wheel build succeeded.
 - Site: 4 Vitest tests passed; TypeScript strict check passed.
-- Browser: 6 Playwright checks passed across desktop and a 390 × 844 mobile
-  viewport. Axe WCAG 2 A/AA/2.1 AA found zero violations on home, privacy, and
-  terms. The suite also exercised the CSV result, arrow-key tabs, offline notice,
-  console errors, and mobile horizontal overflow.
-- Package: isolated sdist and wheel build succeeded.
+- Browser/live local production preview: after a fresh `npm ci` and
+  `npx playwright install chromium`, `npm run test:a11y` passed all 6
+  Playwright checks across desktop and a 390 × 844 mobile viewport. Axe WCAG 2
+  A/AA/2.1 AA found zero violations on home, privacy, and terms. The suite also
+  exercised the CSV result, arrow-key tabs, offline notice, console errors, and
+  mobile horizontal overflow.
+- Static deployment artifact: `npm run build:site` produced `dist/site`,
+  including the updated `staticwebapp.config.json` headers.
 - Supply chain: `npm audit --audit-level=high` reported zero vulnerabilities.
 - Production assets: initial JS 7.35 KB (3.13 KB gzip), CSS 13.39 KB (3.75 KB
   gzip), hero WebP 102.27 KB. All are below the 200/50/300 KB budgets.
@@ -90,5 +107,8 @@ publish from this worker.
   keys, tolerance, Parquet/Arrow, and large files are available in the CLI/API.
 - DVC integration shells out to an installed `dvc` executable; it was covered by
   an adapter test but not against a live remote in this disposable environment.
+- DuckDB's CSV scanner intentionally remains permissive for malformed quoted
+  CSV. This repair preserves the package's existing parsing/API behavior; the
+  browser demo separately presents a clear malformed-quote error.
 - No PyPI release was made; factory credentials and release automation own that
   step.

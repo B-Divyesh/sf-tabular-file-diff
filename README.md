@@ -94,10 +94,12 @@ printf '*.parquet diff=tdiff\n*.csv diff=tdiff\n' >> .gitattributes
 git diff -- data/snapshot.parquet
 ```
 
-`tdiff-git` accepts Git's seven-argument external diff protocol and preserves
-the normal diff exit-code contract. For repositories with different keys per
-dataset, define named drivers such as `tdiff_accounts` and assign them in
-`.gitattributes`.
+`tdiff-git` accepts Git's seven-argument external diff protocol. It translates
+`tdiff`'s normal “differences found” status into a successful external-driver
+status, so `git diff` prints the tabular summary and exits normally for changed
+files. Operational errors remain non-zero. For repositories with different
+keys per dataset, define named drivers such as `tdiff_accounts` and assign them
+in `.gitattributes`.
 
 ### DVC
 

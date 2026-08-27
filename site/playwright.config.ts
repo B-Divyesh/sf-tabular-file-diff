@@ -1,4 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
+import { resolve } from "node:path";
 
 export default defineConfig({
   testDir: "./e2e",
@@ -22,6 +23,7 @@ export default defineConfig({
   ],
   webServer: {
     command: "npm run build:site && npx vite preview --config site/vite.config.js --host 127.0.0.1 --port 4173",
+    cwd: resolve(import.meta.dirname, ".."),
     url: "http://127.0.0.1:4173",
     reuseExistingServer: true,
     timeout: 30_000

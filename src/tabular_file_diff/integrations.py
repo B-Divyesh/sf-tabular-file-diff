@@ -59,8 +59,14 @@ def git_run(argv: Sequence[str] | None = None) -> int:
     if args.old_file == "/dev/null" or args.new_file == "/dev/null":
         side = "added" if args.old_file == "/dev/null" else "removed"
         print(f"TABULAR FILE DIFF\n{args.path}\n\n  file {side} (no two schemas to compare)")
-        return 1
-    return _forward(args, args.old_file, args.new_file)
+        return 0
+
+    # Git treats any non-zero external-diff exit status as a driver failure.
+    # `tdiff`, like conventional diff tools, returns 1 when it finds changes,
+    # so translate its successful comparison statuses for Git while preserving
+    # operational errors (normally 2).
+    status = _forward(args, args.old_file, args.new_file)
+    return 0 if status in (0, 1) else status
 
 
 def git_main() -> None:
