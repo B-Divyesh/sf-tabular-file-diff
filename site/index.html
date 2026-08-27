@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#101a25" />
+    <meta
+      name="description"
+      content="Key-aware, local-first diffs for CSV, Parquet, and Arrow files, powered by DuckDB."
+    />
+    <title>tabular-file-diff — Review data changes at line speed</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="tabular-file-diff home">
+        <svg aria-hidden="true" viewBox="0 0 48 48" width="36" height="36">
+          <path d="M6 10h20a12 12 0 0 1 0 24H6M42 10H27M42 34H27" />
+          <circle cx="26" cy="22" r="4" />
+        </svg>
+        <span>tdiff</span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a href="#demo">Try CSV</a>
+        <a href="#install">Install</a>
+        <a href="https://github.com/B-Divyesh/sf-tabular-file-diff">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="offline-notice" id="offline-notice" role="status" hidden>
+      You’re offline. Local CSV comparison still works; package links will reconnect later.
+    </div>
+
+    <main id="main">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="line-label"><span>01</span> File-native data review</p>
+          <h1 id="hero-title">Review data changes at line speed.</h1>
+          <p class="hero-lede">
+            A key-aware diff for CSV, Parquet, and Arrow. Exact row and schema changes,
+            streamed through DuckDB, delivered to your terminal or one portable report.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#install">Install tdiff</a>
+            <a class="button secondary" href="#demo">Compare CSV here</a>
+          </div>
+          <div class="install-strip" aria-label="Install command">
+            <code>pip install tabular-file-diff</code>
+            <button class="copy-button" type="button" data-copy="pip install tabular-file-diff">
+              Copy
+            </button>
+          </div>
+        </div>
+        <figure class="hero-art">
+          <img
+            src="/data-limited-hero.webp"
+            width="1200"
+            height="800"
+            alt="Art-deco illustration of tabular row trains converging on a brass key junction, then splitting into change routes"
+            fetchpriority="high"
+          />
+          <figcaption>Two snapshots. One key junction. Every change routed.</figcaption>
+        </figure>
+      </section>
+
+      <section class="route-board" aria-labelledby="route-title">
+        <div>
+          <p class="line-label"><span>02</span> One full outer join</p>
+          <h2 id="route-title">A departure board for your data.</h2>
+        </div>
+        <ol class="route-list">
+          <li class="route-old"><span class="route-dot">A</span><strong>Old snapshot</strong><small>CSV / Parquet / Arrow</small></li>
+          <li class="route-key"><span class="route-dot">K</span><strong>Primary key</strong><small>Unique and explicit</small></li>
+          <li class="route-new"><span class="route-dot">B</span><strong>New snapshot</strong><small>Scanned by DuckDB</small></li>
+          <li class="route-result"><span class="route-dot">Δ</span><strong>Change set</strong><small>Rows, columns, schema</small></li>
+        </ol>
+      </section>
+
+      <section class="benefits" aria-labelledby="benefits-title">
+        <p class="line-label"><span>03</span> Built for real snapshots</p>
+        <h2 id="benefits-title">No conversion detours.</h2>
+        <div class="benefit-grid">
+          <article>
+            <span class="poster-number">50M</span>
+            <h3>Scale-oriented</h3>
+            <p>Parquet and CSV are scanned by DuckDB. Cap displayed samples without weakening the aggregate counts.</p>
+          </article>
+          <article>
+            <span class="poster-number">0B</span>
+            <h3>Leaves your machine</h3>
+            <p>No account, upload, telemetry, or remote execution. HTML reports remain complete and self-contained.</p>
+          </article>
+          <article>
+            <span class="poster-number">3×</span>
+            <h3>Fits your workflow</h3>
+            <p>Use the typed Python API, terminal CLI, or wire the native drivers into Git and DVC review.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="demo" id="demo" aria-labelledby="demo-title">
+        <div class="section-heading">
+          <div>
+            <p class="line-label"><span>04</span> Local station</p>
+            <h2 id="demo-title">Try a CSV diff.</h2>
+          </div>
+          <p>Your files are parsed in this tab and are never uploaded. The browser demo is for small CSVs; use the CLI for Parquet, Arrow, or large files.</p>
+        </div>
+
+        <div class="demo-controls">
+          <div class="file-platform">
+            <label for="old-file">Old CSV</label>
+            <input id="old-file" type="file" accept=".csv,text/csv" />
+            <span id="old-file-name">No file selected</span>
+          </div>
+          <div class="junction" aria-hidden="true"><span></span><b>KEY</b><span></span></div>
+          <div class="file-platform">
+            <label for="new-file">New CSV</label>
+            <input id="new-file" type="file" accept=".csv,text/csv" />
+            <span id="new-file-name">No file selected</span>
+          </div>
+        </div>
+
+        <div class="compare-bar">
+          <div>
+            <label for="key-column">Primary key</label>
+            <select id="key-column" disabled><option>Select two CSV files first</option></select>
+          </div>
+          <button class="button secondary" id="sample-button" type="button">Load sample</button>
+          <button class="button primary" id="compare-button" type="button" disabled>Compare rows</button>
+        </div>
+        <p class="demo-status" id="demo-status" role="status" aria-live="polite">No comparison yet. Load the sample or choose two CSV files.</p>
+
+        <div class="demo-result" id="demo-result" hidden>
+          <div class="metric-grid" aria-label="Comparison counts">
+            <div class="metric added"><span>Added</span><strong id="added-count">0</strong></div>
+            <div class="metric removed"><span>Removed</span><strong id="removed-count">0</strong></div>
+            <div class="metric modified"><span>Modified</span><strong id="modified-count">0</strong></div>
+            <div class="metric unchanged"><span>Unchanged</span><strong id="unchanged-count">0</strong></div>
+          </div>
+          <div class="result-columns">
+            <section aria-labelledby="column-result-title">
+              <h3 id="column-result-title">Changes by column</h3>
+              <ul id="column-changes"></ul>
+            </section>
+            <section aria-labelledby="schema-result-title">
+              <h3 id="schema-result-title">Schema</h3>
+              <ul id="schema-changes"></ul>
+            </section>
+          </div>
+          <section aria-labelledby="row-result-title">
+            <h3 id="row-result-title">Changed-row sample</h3>
+            <div class="table-scroll" tabindex="0" aria-label="Changed rows, horizontally scrollable"><table id="change-table"></table></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="install-section" id="install" aria-labelledby="install-title">
+        <div>
+          <p class="line-label"><span>05</span> Now boarding</p>
+          <h2 id="install-title">From install to signal in one command.</h2>
+        </div>
+        <div class="terminal" aria-label="Terminal example">
+          <div class="terminal-title"><span></span><span></span><span></span><b>snapshot review</b></div>
+          <pre tabindex="0" aria-label="Terminal output, horizontally scrollable"><code><em>$</em> tdiff old.parquet new.parquet --key account_id
+
+TABULAR FILE DIFF
+old.parquet → new.parquet
+key: account_id
+
+  <i>+</i> added               12
+  <mark>-</mark> removed              3
+  <u>~</u> modified            41
+  = unchanged       2,184,009
+
+CHANGES BY COLUMN
+  status                   8
+  amount                  33</code></pre>
+        </div>
+      </section>
+
+      <section class="integration" aria-labelledby="integration-title">
+        <p class="line-label"><span>06</span> Connect your line</p>
+        <h2 id="integration-title">Git and DVC are first-class stops.</h2>
+        <div class="code-tabs" role="tablist" aria-label="Integration commands">
+          <button type="button" role="tab" aria-selected="true" aria-controls="git-panel" id="git-tab">Git</button>
+          <button type="button" role="tab" aria-selected="false" aria-controls="dvc-panel" id="dvc-tab" tabindex="-1">DVC</button>
+        </div>
+        <div class="code-panel" id="git-panel" role="tabpanel" aria-labelledby="git-tab">
+          <pre tabindex="0" aria-label="Git commands, horizontally scrollable"><code>git config diff.tdiff.command 'tdiff-git --key id'
+printf '*.parquet diff=tdiff\n' &gt;&gt; .gitattributes
+git diff -- data/snapshot.parquet</code></pre>
+        </div>
+        <div class="code-panel" id="dvc-panel" role="tabpanel" aria-labelledby="dvc-tab" hidden>
+          <pre tabindex="0" aria-label="DVC command, horizontally scrollable"><code>tdiff-dvc data/snapshot.parquet \
+  --from v1.4.0 --to HEAD --key id</code></pre>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="brand footer-brand"><span>tdiff</span><small>Local data review, on schedule.</small></div>
+      <nav aria-label="Footer navigation">
+        <a href="/privacy/">Privacy</a>
+        <a href="/terms/">Terms</a>
+        <a href="https://github.com/B-Divyesh/sf-tabular-file-diff">Source</a>
+      </nav>
+      <p>MIT licensed · Param Factory · 2026</p>
+    </footer>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
