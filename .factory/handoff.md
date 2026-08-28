@@ -5,10 +5,12 @@
 - Work order: `tabular-file-diff-polish-2`
 - Review baseline: `360e4934f8ff26fa04fc6266545a52181451dc15`
 - Repair implementation: `f977344`
+- Evidence and release record: `32fcb76`
 - Branch: `main`, pushed to `origin/main`
 - Artifact class: Python library plus static Vite site; unchanged
 - Deployment: Azure Static Web Apps via the work-order static deploy helper
-- Deployment ID: `93e62aa3-81b9-4c8f-ba0b-7e317191b368`
+- Deployment IDs: `93e62aa3-81b9-4c8f-ba0b-7e317191b368`, then final
+  exact-artifact deployment `aeec77ed-ba8e-4fad-a548-298a45be3ecb`
 - Live URL: <https://tabular-file-diff.sociobot.in/>
 
 ## Delivered
@@ -72,6 +74,8 @@ Cold checks ran against the custom domain on 28 August 2026 after deployment.
   This includes the direct demo, viewport proof, reset/exit isolation, selected
   local files, same-origin-only requests, no cookies/local storage, offline
   reload, route focus/history, 404, mobile width, and Axe.
+- Final cold checks matched SHA-256 for home HTML, demo HTML, 404 HTML, hashed
+  JavaScript, hashed CSS, and `sw.js` between `dist/site` and the live domain.
 - Route checks: `/`, `/demo/`, `/privacy/`, and `/terms/` return 200 with their
   route titles. `/does-not-exist` returns 404 with `Route not found — tdiff`.
 - Live response headers include CSP with `frame-ancestors 'none'`,
