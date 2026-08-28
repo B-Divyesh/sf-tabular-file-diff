@@ -77,3 +77,18 @@ def test_built_wheel_consumer_gets_safe_tolerance_and_csv_errors(tmp_path: Path)
     assert cli.returncode == 2
     assert "Malformed CSV input" in cli.stderr
     assert "unterminated quoted field" in cli.stderr
+
+    demo = subprocess.run(
+        [str(environment / "bin" / "tdiff"), "demo"],
+        check=False,
+        cwd=tmp_path,
+        env=environment_variables,
+        capture_output=True,
+        text=True,
+    )
+    assert demo.returncode == 1
+    demo_directory = Path(
+        next(line.split(": ", 1)[1] for line in demo.stdout.splitlines() if line.startswith("Demo files"))
+    )
+    assert demo_directory.joinpath("sample-old.csv").is_file()
+    assert demo_directory.joinpath("tdiff-demo-report.html").is_file()

@@ -7,13 +7,14 @@
     "dev": "vite --config site/vite.config.js",
     "test": "tsc -p site/tsconfig.json && vitest run --config site/vitest.config.js",
     "test:a11y": "playwright test -c site/playwright.config.ts",
+    "test:claims": "playwright test -c site/playwright.config.ts",
     "test:python": ".venv/bin/pytest",
     "build": "npm run build:site",
     "build:site": "vite build --config site/vite.config.js"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",
-    "@playwright/test": "^1.62.1",
+    "@playwright/test": "1.58.2",
     "typescript": "^5.7.3",
     "vite": "^6.1.0",
     "vitest": "^3.0.5"

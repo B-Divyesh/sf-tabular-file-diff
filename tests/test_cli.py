@@ -72,6 +72,15 @@ def test_cli_unterminated_quoted_csv_is_exit_two(tmp_path: Path, capsys: object)
     assert "unterminated quoted field" in error
 
 
+def test_cli_demo_runs_packaged_sample_and_writes_a_report(capsys: object) -> None:
+    assert run(["demo"]) == 1
+    output = capsys.readouterr().out
+    location = next(line.split(": ", 1)[1] for line in output.splitlines() if line.startswith("Demo files"))
+    report = Path(location) / "tdiff-demo-report.html"
+    assert report.is_file()
+    assert "added" in output
+
+
 def test_git_driver_handles_file_level_addition(capsys: object) -> None:
     code = git_run(
         [

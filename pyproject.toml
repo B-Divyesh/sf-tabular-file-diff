@@ -47,9 +47,10 @@ Issues = "https://github.com/B-Divyesh/sf-tabular-file-diff/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/tabular_file_diff"]
+artifacts = ["src/tabular_file_diff/samples/*.csv"]
 
 [tool.hatch.build.targets.sdist]
-include = ["src", "tests", "README.md", "LICENSE", "CHANGELOG.md", "pyproject.toml"]
+include = ["src", "tests", "examples", "README.md", "LICENSE", "CHANGELOG.md", "pyproject.toml"]
 
 [tool.pytest.ini_options]
 addopts = "-q"

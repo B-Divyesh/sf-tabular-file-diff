@@ -1,27 +1,71 @@
 import { type BrowserDiff, type CsvTable, diffCsv, parseCsv } from "./diff";
 
-const element = <T extends HTMLElement>(id: string): T => {
-  const found = document.getElementById(id);
-  if (!found) throw new Error(`Missing page element: ${id}`);
-  return found as T;
-};
+const sampleOld = "id,name,status,amount\nA-101,Aster,open,125\nA-102,Bram,open,80\nA-103,Cleo,hold,42";
+const sampleNew = "id,name,status,amount,region\nA-101,Aster,closed,125,north\nA-102,Bram,open,84,south\nA-104,Dara,open,55,west";
 
+if (new URLSearchParams(location.search).get("demo") === "1" && !location.pathname.startsWith("/demo")) {
+  location.replace("/demo/");
+}
+
+const byId = <T extends HTMLElement>(id: string): T | null => document.getElementById(id) as T | null;
+
+const tabs = [...document.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+function selectTab(tab: HTMLButtonElement): void {
+  tabs.forEach((candidate) => {
+    const selected = candidate === tab;
+    candidate.setAttribute("aria-selected", String(selected));
+    candidate.tabIndex = selected ? 0 : -1;
+    const panel = byId(candidate.getAttribute("aria-controls") ?? "");
+    if (panel) panel.hidden = !selected;
+  });
+}
+tabs.forEach((tab, index) => {
+  tab.addEventListener("click", () => selectTab(tab));
+  tab.addEventListener("keydown", (event) => {
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+    event.preventDefault();
+    const next = tabs[(index + (event.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length];
+    if (next) { selectTab(next); next.focus(); }
+  });
+});
+
+const offlineNotice = byId("offline-notice");
+function updateConnection(): void { if (offlineNotice) offlineNotice.hidden = navigator.onLine; }
+window.addEventListener("online", updateConnection);
+window.addEventListener("offline", updateConnection);
+updateConnection();
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => { void navigator.serviceWorker.register("/sw.js").catch(() => undefined); });
+}
+
+const oldInput = byId<HTMLInputElement>("old-file");
+const newInput = byId<HTMLInputElement>("new-file");
+const keySelect = byId<HTMLSelectElement>("key-column");
+const compareButton = byId<HTMLButtonElement>("compare-button");
+const resultPanel = byId<HTMLDivElement>("demo-result");
+const status = byId<HTMLParagraphElement>("demo-status");
 let oldTable: CsvTable | undefined;
 let newTable: CsvTable | undefined;
-
-const oldInput = element<HTMLInputElement>("old-file");
-const newInput = element<HTMLInputElement>("new-file");
-const keySelect = element<HTMLSelectElement>("key-column");
-const compareButton = element<HTMLButtonElement>("compare-button");
-const resultPanel = element<HTMLDivElement>("demo-result");
-const status = element<HTMLParagraphElement>("demo-status");
+const inDemo = location.pathname.startsWith("/demo");
 
 function setStatus(message: string, kind: "normal" | "error" | "success" = "normal"): void {
+  if (!status) return;
   status.textContent = message;
   status.className = `demo-status${kind === "normal" ? "" : ` ${kind}`}`;
 }
 
+function renderList(target: HTMLElement | null, entries: string[]): void {
+  if (!target) return;
+  target.replaceChildren(...entries.map((entry) => {
+    const item = document.createElement("li");
+    item.textContent = entry;
+    return item;
+  }));
+}
+
 function updateKeys(): void {
+  if (!keySelect || !compareButton) return;
   keySelect.replaceChildren();
   if (!oldTable || !newTable) {
     keySelect.append(new Option("Select two CSV files first"));
@@ -40,81 +84,45 @@ function updateKeys(): void {
   common.forEach((header) => keySelect.append(new Option(header, header)));
   keySelect.disabled = false;
   compareButton.disabled = false;
-  setStatus("Files ready. Confirm the primary key, then compare rows.");
-}
-
-async function loadFile(input: HTMLInputElement, side: "old" | "new"): Promise<void> {
-  const file = input.files?.[0];
-  if (!file) return;
-  try {
-    setStatus(`Reading ${file.name}…`);
-    const table = parseCsv(await file.text());
-    if (side === "old") oldTable = table;
-    else newTable = table;
-    element(`${side}-file-name`).textContent = `${file.name} · ${table.rows.length.toLocaleString()} rows`;
-    resultPanel.hidden = true;
-    updateKeys();
-  } catch (error) {
-    if (side === "old") oldTable = undefined;
-    else newTable = undefined;
-    updateKeys();
-    setStatus(error instanceof Error ? error.message : "Could not read that CSV.", "error");
-  }
-}
-
-function renderList(target: HTMLElement, entries: string[]): void {
-  target.replaceChildren();
-  entries.forEach((entry) => {
-    const item = document.createElement("li");
-    item.textContent = entry;
-    target.append(item);
-  });
 }
 
 function renderResult(result: BrowserDiff): void {
   (Object.entries(result.counts) as [keyof BrowserDiff["counts"], number][]).forEach(([name, count]) => {
-    element(`${name}-count`).textContent = count.toLocaleString();
+    const metric = byId(`${name}-count`);
+    if (metric) metric.textContent = count.toLocaleString();
   });
-  const columns = Object.entries(result.columnChanges)
-    .filter(([, count]) => count > 0)
-    .map(([name, count]) => `${name} — ${count.toLocaleString()}`);
-  renderList(element("column-changes"), columns.length ? columns : ["No value-column changes"]);
-  const schema = [
-    ...result.schema.added.map((name) => `Added: ${name}`),
-    ...result.schema.removed.map((name) => `Removed: ${name}`)
-  ];
-  renderList(element("schema-changes"), schema.length ? schema : ["No schema changes"]);
-
-  const table = element<HTMLTableElement>("change-table");
+  renderList(byId("column-changes"), Object.entries(result.columnChanges).filter(([, count]) => count > 0).map(([name, count]) => `${name} — ${count}`) || ["No value-column changes"]);
+  const schema = [...result.schema.added.map((name) => `Added: ${name}`), ...result.schema.removed.map((name) => `Removed: ${name}`)];
+  renderList(byId("schema-changes"), schema.length ? schema : ["No schema changes"]);
+  const table = byId<HTMLTableElement>("change-table");
+  if (!table || !keySelect) return;
   table.replaceChildren();
-  if (!result.changedRows.length) {
-    const body = table.createTBody();
-    const cell = body.insertRow().insertCell();
-    cell.textContent = "No changed rows";
-    return;
-  }
   const header = table.createTHead().insertRow();
   ["Status", `Key (${keySelect.value})`, "Change"].forEach((label) => {
-    const cell = document.createElement("th");
-    cell.scope = "col";
-    cell.textContent = label;
-    header.append(cell);
+    const cell = document.createElement("th"); cell.scope = "col"; cell.textContent = label; header.append(cell);
   });
   const body = table.createTBody();
   result.changedRows.forEach((change) => {
     const row = body.insertRow();
-    const state = row.insertCell();
-    state.textContent = change.status;
-    state.className = `status-${change.status}`;
-    row.insertCell().textContent = change.key;
-    row.insertCell().textContent = change.changes;
+    const state = row.insertCell(); state.textContent = change.status; state.className = `status-${change.status}`;
+    row.insertCell().textContent = change.key; row.insertCell().textContent = change.changes;
   });
 }
 
+function loadSample(): void {
+  oldTable = parseCsv(sampleOld);
+  newTable = parseCsv(sampleNew);
+  const oldName = byId("old-file-name"); const newName = byId("new-file-name");
+  if (oldName) oldName.textContent = "sample-old.csv · 3 rows";
+  if (newName) newName.textContent = "sample-new.csv · 3 rows";
+  updateKeys();
+  if (keySelect) keySelect.value = "id";
+  void compare();
+}
+
 async function compare(): Promise<void> {
-  if (!oldTable || !newTable) return;
+  if (!oldTable || !newTable || !keySelect || !compareButton || !resultPanel) return;
   compareButton.disabled = true;
-  compareButton.textContent = "Comparing…";
   setStatus("Comparing rows in this tab…");
   await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
   try {
@@ -122,76 +130,48 @@ async function compare(): Promise<void> {
     renderResult(result);
     resultPanel.hidden = false;
     const total = result.counts.added + result.counts.removed + result.counts.modified;
-    const schemaCount = result.schema.added.length + result.schema.removed.length;
-    setStatus(
-      total || schemaCount
-        ? `Comparison complete: ${total.toLocaleString()} changed rows and ${schemaCount} schema changes.`
-        : "No differences found. Every keyed row and column matches.",
-      "success"
-    );
+    setStatus(`Comparison complete: ${total} changed rows and ${result.schema.added.length + result.schema.removed.length} schema changes.`, "success");
   } catch (error) {
     resultPanel.hidden = true;
     setStatus(error instanceof Error ? error.message : "The comparison could not be completed.", "error");
   } finally {
     compareButton.disabled = false;
-    compareButton.textContent = "Compare rows";
   }
 }
 
-oldInput.addEventListener("change", () => void loadFile(oldInput, "old"));
-newInput.addEventListener("change", () => void loadFile(newInput, "new"));
-compareButton.addEventListener("click", () => void compare());
-
-element<HTMLButtonElement>("sample-button").addEventListener("click", () => {
-  oldTable = parseCsv("id,name,status,amount\nA-101,Aster,open,125\nA-102,Bram,open,80\nA-103,Cleo,hold,42");
-  newTable = parseCsv("id,name,status,amount,region\nA-101,Aster,closed,125,north\nA-102,Bram,open,84,south\nA-104,Dara,open,55,west");
-  element("old-file-name").textContent = "sample-old.csv · 3 rows";
-  element("new-file-name").textContent = "sample-new.csv · 3 rows";
-  resultPanel.hidden = true;
-  updateKeys();
-  keySelect.value = "id";
-  setStatus("Sample ready. Primary key “id” selected; choose Compare rows.");
-});
-
-document.querySelectorAll<HTMLButtonElement>("[data-copy]").forEach((button) => {
-  button.addEventListener("click", async () => {
-    try {
-      await navigator.clipboard.writeText(button.dataset.copy ?? "");
-      button.textContent = "Copied";
-      window.setTimeout(() => { button.textContent = "Copy"; }, 1600);
-    } catch {
-      button.textContent = "Select command";
-    }
-  });
-});
-
-const tabs = [...document.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
-function selectTab(tab: HTMLButtonElement): void {
-  tabs.forEach((candidate) => {
-    const selected = candidate === tab;
-    candidate.setAttribute("aria-selected", String(selected));
-    candidate.tabIndex = selected ? 0 : -1;
-    const panel = document.getElementById(candidate.getAttribute("aria-controls") ?? "");
-    if (panel) panel.hidden = !selected;
-  });
+async function loadFile(input: HTMLInputElement, side: "old" | "new"): Promise<void> {
+  const file = input.files?.[0];
+  if (!file) return;
+  try {
+    const table = parseCsv(await file.text());
+    if (side === "old") oldTable = table; else newTable = table;
+    const filename = byId(`${side}-file-name`);
+    if (filename) filename.textContent = `${file.name} · ${table.rows.length} rows`;
+    if (resultPanel) resultPanel.hidden = true;
+    updateKeys();
+    setStatus("Files ready. Confirm the primary key, then compare rows.");
+  } catch (error) {
+    setStatus(error instanceof Error ? error.message : "Could not read that CSV.", "error");
+  }
 }
-tabs.forEach((tab, index) => {
-  tab.addEventListener("click", () => selectTab(tab));
-  tab.addEventListener("keydown", (event) => {
-    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
-    event.preventDefault();
-    const offset = event.key === "ArrowRight" ? 1 : -1;
-    const next = tabs[(index + offset + tabs.length) % tabs.length];
-    if (next) { selectTab(next); next.focus(); }
-  });
-});
 
-const offlineNotice = element("offline-notice");
-function updateConnection(): void { offlineNotice.hidden = navigator.onLine; }
-window.addEventListener("online", updateConnection);
-window.addEventListener("offline", updateConnection);
-updateConnection();
+if (oldInput && newInput && keySelect && compareButton && resultPanel) {
+  oldInput.addEventListener("change", () => void loadFile(oldInput, "old"));
+  newInput.addEventListener("change", () => void loadFile(newInput, "new"));
+  compareButton.addEventListener("click", () => void compare());
+  byId<HTMLButtonElement>("sample-button")?.addEventListener("click", loadSample);
+  if (inDemo) {
+    sessionStorage.setItem("demo:sample-comparison", "loaded");
+    loadSample();
+    byId<HTMLButtonElement>("reset-demo")?.addEventListener("click", loadSample);
+    byId<HTMLAnchorElement>("start-real")?.addEventListener("click", () => sessionStorage.removeItem("demo:sample-comparison"));
+  }
+}
 
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => { void navigator.serviceWorker.register("/sw.js").catch(() => undefined); });
+const announcer = byId("route-announcer");
+if (announcer) announcer.textContent = document.title;
+const routeHeading = document.querySelector<HTMLElement>("main h1");
+if (routeHeading) {
+  routeHeading.tabIndex = -1;
+  requestAnimationFrame(() => routeHeading.focus({ preventScroll: true }));
 }

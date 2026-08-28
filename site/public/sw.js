@@ -1,5 +1,5 @@
-const CACHE = "tdiff-shell-v1";
-const SHELL = ["/", "/privacy/", "/terms/", "/data-limited-hero.webp", "/favicon.svg"];
+const CACHE = "tdiff-shell-v2";
+const SHELL = ["/", "/demo/", "/privacy/", "/terms/", "/data-limited-hero.webp", "/favicon.svg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)));

@@ -216,7 +216,60 @@ h3 {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+  align-items: center;
 }
+
+.action-note {
+  max-width: 24ch;
+  color: var(--paper-muted);
+  font-size: 0.95rem;
+}
+
+.plain-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin: 28px 0 0;
+  padding: 0;
+  color: var(--paper-muted);
+  font-weight: 700;
+  list-style: none;
+}
+
+.plain-facts li::before {
+  margin-right: 8px;
+  color: var(--jade);
+  content: "◆";
+}
+
+.external { white-space: nowrap; }
+
+.demo-banner {
+  display: flex;
+  min-height: 52px;
+  padding: 6px max(24px, calc((100% - 1160px) / 2));
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid var(--brass);
+  background: var(--platform-high);
+  color: var(--paper);
+}
+
+.demo-banner span { display: flex; align-items: center; gap: 12px; }
+
+.demo-banner button,
+.demo-banner a {
+  min-height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--brass);
+  background: transparent;
+  color: var(--paper);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.demo-banner a { display: inline-flex; align-items: center; text-decoration: none; }
 
 .button {
   display: inline-flex;
@@ -621,6 +674,13 @@ select {
   color: var(--paper-muted);
 }
 
+.result-columns h2,
+.demo-result section > h2 {
+  margin-top: 32px;
+  font-size: 1.35rem;
+  line-height: 1.1;
+}
+
 .result-columns li {
   display: flex;
   min-height: 36px;
@@ -792,6 +852,19 @@ footer {
   color: var(--brass);
 }
 
+.not-found {
+  width: min(760px, calc(100% - 48px));
+  min-height: 62svh;
+  margin: 0 auto;
+  padding: 120px 0;
+}
+
+.not-found > p:not(.line-label) {
+  max-width: 42ch;
+  margin: 28px 0;
+  color: var(--paper-muted);
+}
+
 @keyframes route-draw {
   from { transform: scaleX(0); }
   to { transform: scaleX(1); }
@@ -871,6 +944,17 @@ footer {
   .hero-actions,
   .hero-actions .button {
     width: 100%;
+  }
+
+  .action-note { max-width: 32ch; }
+
+  .plain-facts { display: grid; grid-template-columns: 1fr 1fr; }
+
+  .demo-banner {
+    padding: 8px 16px;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
   }
 
   .install-strip {

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#101a25" />
+    <link rel="canonical" href="https://tabular-file-diff.sociobot.in/demo/" />
+    <meta name="description" content="Try a keyed CSV comparison with shipped sample data." />
+    <meta property="og:title" content="Demo — tdiff" />
+    <meta property="og:description" content="Try a keyed CSV comparison with shipped sample data." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://tabular-file-diff.sociobot.in/demo/" />
+    <meta property="og:image" content="https://tabular-file-diff.sociobot.in/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Demo — tdiff" />
+    <meta name="twitter:description" content="Try a keyed CSV comparison with shipped sample data." />
+    <meta name="twitter:image" content="https://tabular-file-diff.sociobot.in/og-image.png" />
+    <title>Demo — tdiff</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header"><a class="brand" href="/" aria-label="tdiff home"><svg aria-hidden="true" viewBox="0 0 48 48" width="36" height="36"><path d="M6 10h20a12 12 0 0 1 0 24H6M42 10H27M42 34H27" /><circle cx="26" cy="22" r="4" /></svg><span>tdiff</span></a><nav aria-label="Primary navigation"><a href="/demo/" aria-current="page">Demo</a><a href="/#install">Install</a><a href="/privacy/">Privacy</a><a href="https://github.com/B-Divyesh/sf-tabular-file-diff">Source on GitHub <span class="external">↗</span></a></nav></header>
+    <div class="demo-banner" id="demo-banner" role="status"><strong>Demo — sample data, nothing is saved</strong><span><button id="reset-demo" type="button">Reset demo</button><a href="/" id="start-real">Start for real</a></span></div>
+    <div class="offline-notice" id="offline-notice" role="status" hidden>You’re offline. The saved demo can still open.</div>
+    <main id="main">
+      <section class="demo demo-page" aria-labelledby="demo-title">
+        <div class="section-heading"><div><p class="line-label"><span>01</span> Sample comparison</p><h1 id="demo-title">See keyed CSV changes</h1></div><p>This browser preview uses the packaged sample. Use <code>tdiff demo</code> to run the real package on the same shipped CSV sample.</p></div>
+        <div class="demo-controls">
+          <div class="file-platform"><label for="old-file">Old CSV</label><input id="old-file" type="file" accept=".csv,text/csv" /><span id="old-file-name">sample-old.csv · 3 rows</span></div>
+          <div class="junction" aria-hidden="true"><span></span><b>KEY</b><span></span></div>
+          <div class="file-platform"><label for="new-file">New CSV</label><input id="new-file" type="file" accept=".csv,text/csv" /><span id="new-file-name">sample-new.csv · 3 rows</span></div>
+        </div>
+        <div class="compare-bar"><div><label for="key-column">Primary key</label><select id="key-column"><option value="id">id</option></select></div><button class="button secondary" id="sample-button" type="button">Show sample comparison</button><button class="button primary" id="compare-button" type="button">Compare rows</button></div>
+        <p class="demo-status success" id="demo-status" role="status" aria-live="polite">Sample comparison loaded. It has 1 added, 1 removed, and 2 changed rows.</p>
+        <div class="demo-result" id="demo-result">
+          <div class="metric-grid" aria-label="Comparison counts"><div class="metric added"><span>Added</span><strong id="added-count">1</strong></div><div class="metric removed"><span>Removed</span><strong id="removed-count">1</strong></div><div class="metric modified"><span>Modified</span><strong id="modified-count">2</strong></div><div class="metric unchanged"><span>Unchanged</span><strong id="unchanged-count">0</strong></div></div>
+          <div class="result-columns"><section aria-labelledby="column-result-title"><h2 id="column-result-title">Changes by column</h2><ul id="column-changes"><li>amount — 1</li><li>status — 1</li></ul></section><section aria-labelledby="schema-result-title"><h2 id="schema-result-title">Schema changes</h2><ul id="schema-changes"><li>Added: region</li></ul></section></div>
+          <section aria-labelledby="row-result-title"><h2 id="row-result-title">Changed-row sample</h2><div class="table-scroll" tabindex="0" aria-label="Changed rows, horizontally scrollable"><table id="change-table"><thead><tr><th scope="col">Status</th><th scope="col">Key (id)</th><th scope="col">Change</th></tr></thead><tbody><tr><td class="status-added">added</td><td>A-104</td><td>New row</td></tr><tr><td class="status-removed">removed</td><td>A-103</td><td>Old row</td></tr><tr><td class="status-modified">modified</td><td>A-101</td><td>status: open → closed</td></tr><tr><td class="status-modified">modified</td><td>A-102</td><td>amount: 80 → 84</td></tr></tbody></table></div></section>
+        </div>
+      </section>
+    </main>
+    <footer><div class="brand footer-brand"><span>tdiff</span><small>Compare local keyed data files.</small></div><nav aria-label="Footer navigation"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="https://github.com/B-Divyesh/sf-tabular-file-diff">Source on GitHub <span class="external">↗</span></a></nav><p>MIT licensed · Built by Param Factory · 0.1.0</p></footer>
+    <div id="route-announcer" class="sr-only" aria-live="polite"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

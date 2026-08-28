@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import argparse
+import importlib.resources
 import json
 import sys
+import tempfile
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -99,7 +101,10 @@ def _terminal(result: DiffResult) -> str:
 
 
 def run(argv: Sequence[str] | None = None) -> int:
-    args = build_parser().parse_args(argv)
+    arguments = list(sys.argv[1:] if argv is None else argv)
+    if arguments == ["demo"]:
+        return _run_demo()
+    args = build_parser().parse_args(arguments)
     try:
         result = diff_files(
             args.old,
@@ -122,6 +127,22 @@ def run(argv: Sequence[str] | None = None) -> int:
     except (DiffError, OSError) as error:
         print(f"tdiff: {error}", file=sys.stderr)
         return 2
+
+
+def _run_demo() -> int:
+    """Run the packaged CSV sample through the installed comparison engine."""
+    output = Path(tempfile.mkdtemp(prefix="tdiff-demo-"))
+    source = importlib.resources.files("tabular_file_diff").joinpath("samples")
+    old = output / "sample-old.csv"
+    new = output / "sample-new.csv"
+    old.write_bytes(source.joinpath("sample-old.csv").read_bytes())
+    new.write_bytes(source.joinpath("sample-new.csv").read_bytes())
+    report = output / "tdiff-demo-report.html"
+    result = diff_files(old, new, key="id")
+    write_html(result, report)
+    print(f"Demo files and report: {output}")
+    print(_terminal(result))
+    return 1 if result.has_changes else 0
 
 
 def main() -> None:

@@ -80,6 +80,9 @@ scale, overlap, and color.
   encoded to WebP at ≤300 KB. No reference images; no third-party marks.
 - Product mark, route lines, key glyph, and tiny UI icons are hand-authored in
   HTML/CSS or inline SVG. They are simple interface geometry, not stock assets.
+- `site/public/og-image.png` and `site/public/apple-touch-icon.png` are
+  hand-composed crops of the repository's original `data-limited-hero.webp`.
+  They introduce no third-party imagery.
 
 Final generation prompt:
 

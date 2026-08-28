@@ -1,0 +1,1 @@
+Compare keyed CSV, Parquet, and Arrow snapshots in Git or DVC.
