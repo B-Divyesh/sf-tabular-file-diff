@@ -5,8 +5,8 @@ Compare keyed CSV, Parquet, and Arrow data snapshots.
 tdiff is for data engineers and analysts reviewing versioned data in Git or DVC.
 Package and CLI comparisons run locally without telemetry.
 
-Try the [sample demo](https://tabular-file-diff.sociobot.in/demo/).
-It compares shipped or selected CSV files in your browser tab.
+Try the [package playground](https://tabular-file-diff.sociobot.in/demo/).
+It runs the shipped Python wheel on CSV, gzip CSV, Parquet, and Arrow IPC files in your browser tab.
 Run `tdiff demo` to compare the bundled files with the installed package.
 
 ## Install

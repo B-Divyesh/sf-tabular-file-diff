@@ -1,8 +1,11 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { readFile } from "node:fs/promises";
 
 async function expectDemo(page: import("@playwright/test").Page): Promise<void> {
   await expect(page.getByText("Demo — sample data, nothing is saved")).toBeVisible();
+  await expect(page.locator('#engine-proof[data-package-ready="true"]')).toContainText("Wheel 0.1.0", { timeout: 120_000 });
+  await expect(page.locator("#demo-status")).toHaveClass(/success/, { timeout: 120_000 });
   await expect(page.locator("#added-count")).toHaveText("1");
   await expect(page.locator("#removed-count")).toHaveText("1");
   await expect(page.locator("#modified-count")).toHaveText("2");
@@ -11,6 +14,8 @@ async function expectDemo(page: import("@playwright/test").Page): Promise<void> 
   await expect(page.locator("#proof-columns")).toHaveText(/^(status 1 · amount 1|amount 1 · status 1)$/);
   await expect(page.locator("#proof-schema")).toHaveText("region added");
   await expect(page.locator("#proof-row")).toContainText("A-101 · status: open → closed");
+  const widths = await page.evaluate(() => ({ document: document.documentElement.scrollWidth, window: window.innerWidth }));
+  expect(widths.document).toBeLessThanOrEqual(widths.window);
 }
 
 test("@claim:demo-one-click direct demo shows the shipped comparison", async ({ page }) => {
@@ -46,10 +51,13 @@ test("@claim:browser-private demo sends no request beyond this origin", async ({
   await page.goto("/demo/");
   const productOrigin = new URL(page.url()).origin;
   await expectDemo(page);
+  await expect(page.locator("html")).toHaveAttribute("data-offline-ready", "true", { timeout: 120_000 });
+  const loadedRequests = requests.length;
   await page.locator("#old-file").setInputFiles({ name: "private-old.csv", mimeType: "text/csv", buffer: Buffer.from("id,value\n1,old\n2,removed\n") });
   await page.locator("#new-file").setInputFiles({ name: "private-new.csv", mimeType: "text/csv", buffer: Buffer.from("id,value\n1,new\n3,added\n") });
-  await page.getByRole("button", { name: "Compare rows" }).click();
+  await page.getByRole("button", { name: "Compare with package" }).click();
   await expect(page.locator("#modified-count")).toHaveText("1");
+  expect(requests).toHaveLength(loadedRequests);
   expect(new Set(requests.map((request) => request.origin))).toEqual(new Set([productOrigin]));
   expect(requests.every((request) => request.method === "GET")).toBe(true);
   expect(await page.context().cookies()).toEqual([]);
@@ -60,15 +68,58 @@ test("@claim:browser-csv selected CSV files are compared in this tab", async ({ 
   const requests: string[] = [];
   page.on("request", (request) => requests.push(request.url()));
   await page.goto("/demo/");
+  await expectDemo(page);
   const loadedRequests = requests.length;
   await page.locator("#old-file").setInputFiles({ name: "old.csv", mimeType: "text/csv", buffer: Buffer.from("id,value\n1,old\n2,same\n") });
   await page.locator("#new-file").setInputFiles({ name: "new.csv", mimeType: "text/csv", buffer: Buffer.from("id,value\n1,new\n3,added\n") });
-  await page.getByRole("button", { name: "Compare rows" }).click();
+  await page.getByRole("button", { name: "Compare with package" }).click();
+  await expect(page.locator("#demo-status")).toHaveClass(/success/);
   await expect(page.locator("#added-count")).toHaveText("1");
   await expect(page.locator("#removed-count")).toHaveText("1");
   await expect(page.locator("#modified-count")).toHaveText("1");
   expect(requests).toHaveLength(loadedRequests);
-  await expect(page.locator("#old-file")).toHaveAttribute("accept", ".csv,text/csv");
+  await expect(page.locator("#old-file")).toHaveAttribute("accept", /\.parquet/);
+});
+
+test("@claim:library-playground shipped wheel compares every browser fixture", async ({ page }) => {
+  await page.goto("/demo/");
+  await expectDemo(page);
+  await expect(page.locator("html")).toHaveAttribute("data-package-module", /site-packages\/tabular_file_diff\/__init__\.py$/);
+
+  for (const format of ["gzip", "parquet", "arrow"]) {
+    await page.locator("#sample-format").selectOption(format);
+    await page.getByRole("button", { name: "Load format sample" }).click();
+    await expect(page.locator("#demo-status")).not.toHaveClass(/success/);
+    await expect(page.locator("#demo-status")).toHaveClass(/success/, { timeout: 120_000 });
+    await expect(page.locator("#added-count")).toHaveText("1");
+    await expect(page.locator("#removed-count")).toHaveText("1");
+    await expect(page.locator("#modified-count")).toHaveText("2");
+    await expect(page.locator("#proof-schema")).toHaveText("region added");
+  }
+
+  await page.locator("#sample-format").selectOption("csv");
+  await page.getByRole("button", { name: "Load format sample" }).click();
+  await expect(page.locator("#demo-status")).toHaveClass(/success/, { timeout: 120_000 });
+  await page.locator("#old-editor").fill("id,value\n1,before\n2,same\n");
+  await page.locator("#new-editor").fill("id,value\n1,after\n2,same\n");
+  await page.getByRole("button", { name: "Compare with package" }).click();
+  await expect(page.locator("#demo-status")).toHaveClass(/success/, { timeout: 120_000 });
+  await expect(page.locator("#modified-count")).toHaveText("1");
+  await expect(page.locator("#package-output")).toContainText('"modified": 1');
+  await expect(page.locator("#download-report")).toBeEnabled();
+  const downloadPromise = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Download HTML report" }).click();
+  const download = await downloadPromise;
+  const reportPath = await download.path();
+  expect(reportPath).not.toBeNull();
+  const report = await readFile(reportPath!, "utf8");
+  expect(report).toContain("<!doctype html>");
+  expect(report).not.toContain("<script");
+  await expect(page.locator("#python-snippet")).toContainText("from tabular_file_diff import diff_files");
+  const workerSource = await (await page.request.get("/playground/worker.js")).text();
+  expect(workerSource).toContain("from tabular_file_diff import diff_files");
+  expect(workerSource).not.toContain("site/src/diff");
+  expect((await page.request.get("/playground/tabular_file_diff-0.1.0-py3-none-any.whl")).status()).toBe(200);
 });
 
 test("@claim:no-account demo opens without an account form", async ({ page }) => {
@@ -79,9 +130,9 @@ test("@claim:no-account demo opens without an account form", async ({ page }) =>
 
 test("@claim:offline-demo demo reloads after its first visit", async ({ context, page }) => {
   await page.goto("/demo/");
-  await page.evaluate(() => navigator.serviceWorker.ready);
-  await page.reload();
   await expectDemo(page);
+  await page.evaluate(() => navigator.serviceWorker.ready);
+  await expect(page.locator("html")).toHaveAttribute("data-offline-ready", "true", { timeout: 120_000 });
   await context.setOffline(true);
   await page.reload();
   await expectDemo(page);

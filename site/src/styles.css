@@ -534,6 +534,27 @@ pre {
   background: var(--night);
 }
 
+.engine-proof {
+  width: fit-content;
+  min-height: 36px;
+  margin: 16px 0 0;
+  padding: 7px 12px;
+  border: 1px solid var(--sky);
+  color: var(--paper-muted);
+  font: 700 0.78rem/1.5 var(--mono);
+}
+
+.engine-proof[data-package-ready="true"] {
+  border-color: var(--jade);
+  color: var(--paper);
+}
+
+.engine-proof[data-package-ready="true"]::before {
+  margin-right: 8px;
+  color: var(--jade);
+  content: "◆";
+}
+
 .proof-label {
   margin: 0;
   padding: 10px 16px 0;
@@ -602,6 +623,23 @@ pre {
   font-size: clamp(2.2rem, 4vw, 3.8rem);
 }
 
+.sample-picker {
+  display: flex;
+  margin-top: 40px;
+  align-items: end;
+  gap: 12px;
+}
+
+.sample-picker label,
+.csv-editors label,
+.api-snippet label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--paper-muted);
+  font-size: 0.875rem;
+  font-weight: 800;
+}
+
 .demo-details {
   margin-top: 24px;
 }
@@ -619,9 +657,33 @@ pre {
 
 .demo-controls {
   display: grid;
-  margin-top: 64px;
+  margin-top: 32px;
   grid-template-columns: 1fr 100px 1fr;
   align-items: center;
+}
+
+.csv-editors {
+  display: grid;
+  margin-top: 24px;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.csv-editors textarea {
+  width: 100%;
+  min-height: 150px;
+  padding: 14px;
+  resize: vertical;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--night);
+  color: var(--paper);
+  font: 0.82rem/1.5 var(--mono);
+}
+
+.csv-editors textarea:disabled {
+  color: var(--paper-muted);
+  opacity: 0.8;
 }
 
 .file-platform {
@@ -699,8 +761,10 @@ pre {
 }
 
 .compare-bar > div {
-  margin-right: auto;
+  min-width: 180px;
 }
+
+.compare-bar > div:first-child { margin-right: 0; }
 
 .compare-bar label {
   display: block;
@@ -714,6 +778,17 @@ select {
   min-width: 220px;
   min-height: 48px;
   padding: 0 40px 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--night);
+  color: var(--paper);
+}
+
+input[type="text"],
+input[type="number"] {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
   border: 1px solid var(--line);
   border-radius: 0;
   background: var(--night);
@@ -805,6 +880,33 @@ select {
 .table-scroll {
   overflow-x: auto;
   border: 1px solid var(--line);
+}
+
+#package-output {
+  max-height: 320px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  background: var(--night-deep);
+  color: var(--paper-muted);
+  white-space: pre;
+}
+
+.download-report:disabled {
+  opacity: 0.55;
+}
+
+.api-snippet {
+  margin-top: 72px;
+  padding-top: 64px;
+  border-top: 1px solid var(--line);
+}
+
+.api-snippet h2 {
+  font-size: clamp(2.2rem, 4vw, 3.8rem);
+}
+
+.api-snippet pre {
+  margin: 24px 0 16px;
 }
 
 table {
@@ -1145,6 +1247,12 @@ footer {
     margin-top: 16px;
   }
 
+  .engine-proof {
+    width: 100%;
+    margin-top: 10px;
+    font-size: 0.7rem;
+  }
+
   .demo-proof .metric-grid {
     grid-template-columns: repeat(4, 1fr);
   }
@@ -1212,6 +1320,16 @@ footer {
     grid-template-columns: 1fr;
   }
 
+  .sample-picker,
+  .csv-editors {
+    align-items: stretch;
+    grid-template-columns: 1fr;
+  }
+
+  .sample-picker {
+    display: grid;
+  }
+
   .junction {
     height: 56px;
     justify-content: center;
@@ -1228,6 +1346,8 @@ footer {
   }
 
   .compare-bar > div,
+  .sample-picker select,
+  .sample-picker .button,
   select,
   .compare-bar .button {
     width: 100%;

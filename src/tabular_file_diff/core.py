@@ -184,7 +184,10 @@ def _register_source(connection: duckdb.DuckDBPyConnection, name: str, path: Pat
         reader = f"read_parquet({_literal(str(path))}, union_by_name = true)"
     elif lower.endswith((".csv", ".csv.gz")):
         _validate_csv_quotes(path)
-        reader = f"read_csv_auto({_literal(str(path))}, header = true, strict_mode = true)"
+        # ``strict_mode`` was added after the oldest supported DuckDB release.
+        # Quote validation above covers the unsafe permissive case while the
+        # reader's default error handling still rejects malformed rows.
+        reader = f"read_csv_auto({_literal(str(path))}, header = true, ignore_errors = false)"
     elif lower.endswith((".arrow", ".ipc", ".feather")):
         registered = f"_{name}_arrow"
         try:
@@ -254,6 +257,14 @@ def _change_expression(
 
 def _limited(query: str, max_rows: int | None) -> str:
     return query if max_rows is None else f"{query} LIMIT {max_rows}"
+
+
+def _arrow_table(connection: duckdb.DuckDBPyConnection, query: str) -> pa.Table:
+    """Return an Arrow table across the supported DuckDB 1.x API names."""
+    cursor = connection.execute(query)
+    if hasattr(cursor, "to_arrow_table"):
+        return cursor.to_arrow_table()
+    return cursor.fetch_arrow_table()
 
 
 def diff_files(
@@ -364,9 +375,9 @@ def diff_files(
             f"SELECT {', '.join(modified_fields)} FROM old_data o "
             f"INNER JOIN new_data n ON {join} WHERE {any_change}"
         )
-        added = connection.execute(_limited(added_query, max_rows)).to_arrow_table()
-        removed = connection.execute(_limited(removed_query, max_rows)).to_arrow_table()
-        modified = connection.execute(_limited(modified_query, max_rows)).to_arrow_table()
+        added = _arrow_table(connection, _limited(added_query, max_rows))
+        removed = _arrow_table(connection, _limited(removed_query, max_rows))
+        modified = _arrow_table(connection, _limited(modified_query, max_rows))
         truncated = max_rows is not None and any(
             count > max_rows for count in (added_count, removed_count, modified_count)
         )

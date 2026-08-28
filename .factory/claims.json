@@ -22,10 +22,17 @@
   },
   {
     "id": "browser-csv",
-    "claim": "The sample demo compares shipped or selected CSV files in this browser tab.",
+    "claim": "The package playground compares shipped or selected CSV files in this browser tab.",
     "where": "home, /demo/, README, privacy page",
     "test": "npm run test:claims -- --grep @claim:browser-csv",
-    "sandbox": "fresh browser supplies two CSV files, compares them without a new request, and asserts the result"
+    "sandbox": "fresh browser waits for the self-hosted Python wheel, supplies two CSV files, compares them without a new request, and asserts the result"
+  },
+  {
+    "id": "library-playground",
+    "claim": "The browser playground executes the shipped Python wheel with DuckDB and PyArrow for CSV, gzip CSV, Parquet, and Arrow IPC files.",
+    "where": "home, /demo/, README",
+    "test": "npm run test:claims -- --grep @claim:library-playground",
+    "sandbox": "fresh browser checks the imported wheel path, runs every shipped format fixture, matches diff_files results, inspects JSON output, and enables the HTML report"
   },
   {
     "id": "no-account",
@@ -36,7 +43,7 @@
   },
   {
     "id": "offline-demo",
-    "claim": "The saved sample demo reloads offline after its first visit.",
+    "claim": "The saved package playground reloads and recomputes its sample offline after its first visit.",
     "where": "offline notice and .factory/demo.md",
     "test": "npm run test:claims -- --grep @claim:offline-demo",
     "sandbox": "fresh service-worker client visits /demo/, goes offline, reloads, and asserts the completed result"

@@ -8,6 +8,11 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- Replaced the separate browser CSV comparator with the packaged Python wheel
+  running locally through self-hosted Pyodide, DuckDB, and PyArrow.
+- Added browser fixtures for CSV, gzip CSV, Parquet, and Arrow IPC, editable
+  CSV inputs, JSON output, and self-contained HTML report downloads.
+- Kept CSV loading compatible with every declared DuckDB 1.x release.
 - Made nonzero numeric tolerances inclusive at their decimal boundary, without
   IEEE-754 round-off falsely reporting a change.
 - Reject CSV and CSV.GZ inputs with an unterminated quoted field before they

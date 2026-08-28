@@ -57,6 +57,10 @@ grid.
 - File inputs read as station platforms: file name is the state, the button is
   the destination marker.
 - Results follow one stable order: added / removed / modified / schema.
+- The playground's outlined engine ticket names the exact wheel, DuckDB, and
+  PyArrow versions after the worker loads. It uses the same enamel-sign shape
+  language as the route labels, so implementation proof is part of the visual
+  system rather than a generic status badge.
 - Focus is a 3 px brass outline with a 3 px offset. Hover never carries meaning
   on its own. Targets are at least 44 px.
 - The demo exposes loading, empty, invalid-key, duplicate-key, no-change, and

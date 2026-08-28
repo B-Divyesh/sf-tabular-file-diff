@@ -1,1 +1,1 @@
-Compare CSV, Parquet, and Arrow snapshots by key in Git or DVC.
+Compare keyed CSV, Parquet, and Arrow snapshots locally from Python, Git, or DVC.

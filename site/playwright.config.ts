@@ -7,6 +7,8 @@ export default defineConfig({
   testDir: "./e2e",
   outputDir: "../test-results",
   reporter: "line",
+  timeout: 180_000,
+  workers: 1,
   use: {
     baseURL: externalBaseUrl ?? "http://127.0.0.1:4173",
     trace: "retain-on-failure"

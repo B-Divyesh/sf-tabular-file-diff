@@ -1,9 +1,15 @@
-# Copy audit — perfection loop 2
+# Copy audit — perfection loop 3
 
-Audited 28 August 2026. Counts treat commands and filenames as one word. Code
-examples and comparison data are excluded because they are executable input or
-output, not prose. No prose unit exceeds 22 words. No banned marketing word is
+Audited 28 August 2026. Commands, filenames, and sample output are treated as
+data. Sentences are counted separately when one paragraph contains more than
+one sentence. No prose sentence exceeds 22 words. No banned marketing word is
 present.
+
+## First-screen read-aloud check
+
+“Compare keyed data snapshots. For data engineers reviewing CSV, Parquet, or
+Arrow changes in Git or DVC. Try it with sample data.” This states the job,
+audience, context, and first action in one breath.
 
 ## Landing page
 
@@ -34,8 +40,8 @@ present.
 | 4 | Rows, columns, and schema |
 | 6 | Review data files on your machine |
 | 8 | Use the comparison where your files live |
-| 4 | Try the sample demo |
-| 10 | The sample demo compares two shipped CSV files in this tab. |
+| 4 | Try the package playground |
+| 16 | The playground runs the shipped Python wheel on CSV, Parquet, and Arrow files in this tab. |
 | 4 | Run the package demo |
 | 10 | tdiff demo runs the packaged sample in a temporary directory. |
 | 3 | Write a report |
@@ -46,41 +52,54 @@ present.
 | 2 | Snapshot review |
 | 3 | Git and DVC |
 | 4 | Compare tracked data files |
-| 1 | Git |
-| 1 | DVC |
 | 5 | Compare local keyed data files. |
-| 1 | Terms |
 | 7 | MIT licensed · Built by Param Factory · 0.1.0 |
 
-## Sample demo
+## Package playground
 
 | Words | Visible copy unit |
 | ---: | --- |
 | 7 | Demo — sample data, nothing is saved |
 | 2 | Reset demo |
 | 3 | Start for real |
-| 2 | Sample demo |
-| 4 | Compare sample CSV changes |
-| 15 | The sample demo is ready. Use tdiff demo to compare the same files with the package. |
-| 2 | Sample result |
+| 2 | Package playground |
+| 6 | Run the package in your browser |
+| 9 | The shipped Python wheel runs here with DuckDB and PyArrow. |
+| 6 | Your files stay in this tab. |
+| 5 | Loading the local Python package… |
+| 2 | Package result |
 | 1 | Added |
 | 1 | Removed |
 | 1 | Changed |
 | 1 | Unchanged |
 | 3 | region added |
 | 6 | A-101 · status: open → closed |
-| 9 | Comparison complete: 4 changed rows and 1 schema change. |
+| 8 | Running the packaged comparison locally… |
 | 2 | Your files |
-| 4 | Edit the sample demo |
-| 15 | Choose two small CSV files, select their shared row ID, then compare them in this tab. |
-| 2 | Old CSV |
-| 2 | New CSV |
+| 3 | Compare supported files |
+| 13 | Edit CSV text or choose CSV, gzip CSV, Parquet, Arrow IPC, or Feather files. |
+| 3 | Shipped sample format |
+| 3 | Load format sample |
+| 3 | Old data snapshot |
+| 3 | New data snapshot |
+| 3 | Old CSV text |
+| 3 | New CSV text |
 | 2 | Primary key |
-| 3 | Show sample comparison |
-| 2 | Compare rows |
+| 2 | Numeric tolerance |
+| 3 | Compare with package |
 | 3 | Changes by column |
 | 2 | Schema changes |
 | 2 | Changed-row sample |
+| 3 | Package JSON output |
+| 5 | Waiting for the packaged comparison. |
+| 3 | Download HTML report |
+| 2 | Fresh project |
+| 5 | Use the same Python API |
+| 3 | Copy Python snippet |
+
+Dynamic progress, success, empty, and error messages are each at most 18
+words. Errors state what failed and tell the visitor to check the inputs or
+reload while online.
 
 ## README prose
 
@@ -90,8 +109,8 @@ present.
 | 8 | Compare keyed CSV, Parquet, and Arrow data snapshots. |
 | 14 | tdiff is for data engineers and analysts reviewing versioned data in Git or DVC. |
 | 8 | Package and CLI comparisons run locally without telemetry. |
-| 4 | Try the sample demo. |
-| 10 | It compares shipped or selected CSV files in your browser tab. |
+| 4 | Try the package playground. |
+| 19 | It runs the shipped Python wheel on CSV, gzip CSV, Parquet, and Arrow IPC files in your browser tab. |
 | 12 | Run tdiff demo to compare the bundled files with the installed package. |
 | 1 | Install |
 | 7 | tabular-file-diff supports Python 3.10 and later. |
@@ -134,10 +153,10 @@ present.
 | --- | --- |
 | Compared inputs | data snapshots |
 | Row identity | primary key; row ID only in the first explanation |
-| Output | comparison |
-| In-browser path | sample demo |
+| In-browser path | package playground |
 | Installed path | package demo |
+| Output | comparison |
 | Difference state | changed |
 
-The package API and terminal use “modified” as a stable technical field name.
-Instructional site copy uses the plainer word “changed.”
+The package API and terminal keep `modified` as their stable technical field.
+Visible instructional copy uses the plainer word “changed.”

@@ -1,5 +1,5 @@
-const CACHE = "tdiff-shell-v3";
-const SHELL = ["/", "/demo/", "/privacy/", "/terms/", "/404.html", "/data-limited-hero.webp", "/favicon.svg", "/apple-touch-icon.png"];
+const CACHE = "tdiff-shell-v5";
+const SHELL = ["/", "/demo/", "/privacy/", "/terms/", "/404.html", "/data-limited-hero.webp", "/favicon.svg", "/apple-touch-icon.png", "/playground/worker.js", "/playground/pyodide/pyodide.js"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)));
@@ -18,12 +18,12 @@ self.addEventListener("fetch", (event) => {
       fetch(event.request).then((response) => {
         if (response.ok) caches.open(CACHE).then((cache) => cache.put(event.request, response.clone()));
         return response;
-      }).catch(async () => (await caches.match(event.request)) || (await caches.match("/")))
+      }).catch(async () => (await caches.match(event.request, { ignoreVary: true })) || (await caches.match("/")))
     );
     return;
   }
   event.respondWith(
-    caches.match(event.request).then((cached) => cached || fetch(event.request).then((response) => {
+    caches.match(event.request, { ignoreVary: true }).then((cached) => cached || fetch(event.request).then((response) => {
       if (response.ok) caches.open(CACHE).then((cache) => cache.put(event.request, response.clone()));
       return response;
     }).catch(() => caches.match("/")))

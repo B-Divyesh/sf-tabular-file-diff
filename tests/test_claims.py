@@ -8,6 +8,7 @@ import re
 import socket
 import subprocess
 import sys
+import zipfile
 from pathlib import Path
 
 import pyarrow as pa
@@ -18,6 +19,36 @@ import pytest
 from tabular_file_diff import DiffError, DiffResult, diff_files
 from tabular_file_diff.cli import run
 from tabular_file_diff.integrations import dvc_run
+
+
+@pytest.mark.parametrize("suffix", ["csv", "csv-gzip.bin", "parquet", "arrow"])
+def test_playground_fixtures_match_diff_files(tmp_path: Path, suffix: str) -> None:
+    """The browser fixtures produce the same result through the package API."""
+    fixtures = Path(__file__).parents[1] / "site" / "public" / "samples"
+    package_suffix = "csv.gz" if suffix == "csv-gzip.bin" else suffix
+    old = tmp_path / f"old.{package_suffix}"
+    new = tmp_path / f"new.{package_suffix}"
+    old.write_bytes(fixtures.joinpath(f"sample-old.{suffix}").read_bytes())
+    new.write_bytes(fixtures.joinpath(f"sample-new.{suffix}").read_bytes())
+    result = diff_files(old, new, key="id")
+    assert (result.added_count, result.removed_count, result.modified_count, result.unchanged_count) == (1, 1, 2, 0)
+    assert result.column_changes == {"name": 0, "status": 1, "amount": 1}
+    assert result.schema.added == {"region": "VARCHAR"}
+
+
+def test_playground_wheel_contains_current_package(tmp_path: Path) -> None:
+    """The self-hosted wheel is rebuilt from, and contains, the package source."""
+    repository = Path(__file__).parents[1]
+    subprocess.run([sys.executable, "scripts/build_playground_wheel.py"], cwd=repository, check=True)
+    wheel = repository / "site/public/playground/tabular_file_diff-0.1.0-py3-none-any.whl"
+    with zipfile.ZipFile(wheel) as archive:
+        for source in (repository / "src/tabular_file_diff").rglob("*"):
+            if source.is_file() and source.suffix != ".pyc":
+                packaged = archive.read(source.relative_to(repository / "src").as_posix())
+                assert packaged == source.read_bytes()
+    worker = repository.joinpath("site/public/playground/worker.js").read_text(encoding="utf-8")
+    assert "from tabular_file_diff import diff_files" in worker
+    assert "site/src/diff" not in worker
 
 
 def test_claim_package_formats(tmp_path: Path, capsys: object) -> None:
