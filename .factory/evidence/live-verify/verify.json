@@ -1,0 +1,14 @@
+{
+  "url": "https://tabular-file-diff.sociobot.in/?cold=polish-2",
+  "loadMs": 881,
+  "errors": [],
+  "a11y": {
+    "title": "tdiff — Compare keyed data files",
+    "lang": "en",
+    "h1": 1,
+    "main": true,
+    "imgsMissingAlt": 0,
+    "buttonsUnlabeled": 0,
+    "textLength": 1501
+  }
+}

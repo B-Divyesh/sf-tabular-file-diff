@@ -1,12 +1,14 @@
 import { defineConfig, devices } from "@playwright/test";
 import { resolve } from "node:path";
 
+const externalBaseUrl = process.env.PLAYWRIGHT_BASE_URL;
+
 export default defineConfig({
   testDir: "./e2e",
   outputDir: "../test-results",
   reporter: "line",
   use: {
-    baseURL: "http://127.0.0.1:4173",
+    baseURL: externalBaseUrl ?? "http://127.0.0.1:4173",
     trace: "retain-on-failure"
   },
   projects: [
@@ -21,7 +23,7 @@ export default defineConfig({
       }
     }
   ],
-  webServer: {
+  webServer: externalBaseUrl ? undefined : {
     command: "npm run build:site && npx vite preview --config site/vite.config.js --host 127.0.0.1 --port 4173",
     cwd: resolve(import.meta.dirname, ".."),
     url: "http://127.0.0.1:4173",

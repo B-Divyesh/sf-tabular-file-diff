@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#101a25" />
+    <link rel="canonical" href="https://tabular-file-diff.sociobot.in/" />
+    <meta name="description" content="Compare keyed CSV, Parquet, and Arrow data snapshots from Python, Git, or DVC." />
+    <meta property="og:title" content="tdiff — Compare keyed data files" />
+    <meta property="og:description" content="Compare keyed CSV, Parquet, and Arrow data snapshots." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://tabular-file-diff.sociobot.in/" />
+    <meta property="og:image" content="https://tabular-file-diff.sociobot.in/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="tdiff — Compare keyed data files" />
+    <meta name="twitter:description" content="Compare keyed CSV, Parquet, and Arrow data snapshots." />
+    <meta name="twitter:image" content="https://tabular-file-diff.sociobot.in/og-image.png" />
+    <title>tdiff — Compare keyed data files</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <script type="module" crossorigin src="/assets/main-CLoJugJT.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/main-Cm98Ixws.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="tdiff home"><svg aria-hidden="true" viewBox="0 0 48 48" width="36" height="36"><path d="M6 10h20a12 12 0 0 1 0 24H6M42 10H27M42 34H27" /><circle cx="26" cy="22" r="4" /></svg><span>tdiff</span></a>
+      <nav aria-label="Primary navigation"><a href="/demo/">Demo</a><a href="#install">Install</a><a href="/privacy/">Privacy</a><a href="https://github.com/B-Divyesh/sf-tabular-file-diff">Source on GitHub <span class="external">↗</span></a></nav>
+    </header>
+    <div class="offline-notice" id="offline-notice" role="status" hidden>You’re offline. The saved demo can still open.</div>
+    <main id="main">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="line-label"><span>01</span> Compare files by a row ID</p>
+          <h1 id="hero-title">Compare keyed data snapshots</h1>
+          <p class="hero-lede">For data engineers reviewing CSV, Parquet, or Arrow changes in Git or DVC.</p>
+          <div class="hero-actions"><a class="button primary" href="/demo/">Try it with sample data</a><span class="action-note">See added, removed, and changed rows immediately.</span></div>
+          <ul class="plain-facts"><li>Runs locally</li><li>No account</li><li>Free and MIT licensed</li></ul>
+        </div>
+        <figure class="hero-art"><img src="/data-limited-hero.webp" width="1200" height="800" alt="Art-deco data trains meeting at a brass key junction and splitting into change routes" fetchpriority="high" /><figcaption>Two data snapshots meet at one primary key.</figcaption></figure>
+      </section>
+      <section class="route-board" aria-labelledby="route-title">
+        <div><p class="line-label"><span>02</span> Compare files in three steps</p><h2 id="route-title">How keyed comparison works</h2></div>
+        <ol class="route-list"><li class="route-old"><span class="route-dot">A</span><strong>Choose snapshots</strong><small>Old and new files</small></li><li class="route-key"><span class="route-dot">K</span><strong>Name the key</strong><small>A column that identifies each row</small></li><li class="route-new"><span class="route-dot">Δ</span><strong>Compare changes</strong><small>Rows, columns, and schema</small></li></ol>
+      </section>
+      <section class="benefits" aria-labelledby="benefits-title">
+        <p class="line-label"><span>03</span> Review data files on your machine</p><h2 id="benefits-title">Use the comparison where your files live</h2>
+        <div class="benefit-grid">
+          <article><span class="poster-number">CSV</span><h3>Try the sample demo</h3><p>The sample demo compares two shipped CSV files in this tab.</p></article>
+          <article><span class="poster-number">CLI</span><h3>Run the package demo</h3><p><code>tdiff demo</code> runs the packaged sample in a temporary directory.</p></article>
+          <article><span class="poster-number">HTML</span><h3>Write a report</h3><p>The CLI can write a self-contained HTML report beside your work.</p></article>
+        </div>
+      </section>
+      <section class="install-section" id="install" aria-labelledby="install-title">
+        <div><p class="line-label"><span>04</span> Install the CLI</p><h2 id="install-title">Compare your first files</h2><p class="section-copy">Use a primary key that identifies each row in both data snapshots.</p></div>
+        <div class="terminal" aria-label="Terminal example"><div class="terminal-title"><span></span><span></span><span></span><b>snapshot review</b></div><pre tabindex="0" aria-label="Terminal example, horizontally scrollable"><code><em>$</em> pip install tabular-file-diff
+<em>$</em> tdiff old.parquet new.parquet --key account_id
+
+  + added               12
+  - removed              3
+  ~ modified            41
+  = unchanged    2,184,009</code></pre></div>
+      </section>
+      <section class="integration" aria-labelledby="integration-title"><p class="line-label"><span>05</span> Git and DVC</p><h2 id="integration-title">Compare tracked data files</h2><div class="code-tabs" role="tablist" aria-label="Integration commands"><button type="button" role="tab" aria-selected="true" aria-controls="git-panel" id="git-tab">Git</button><button type="button" role="tab" aria-selected="false" aria-controls="dvc-panel" id="dvc-tab" tabindex="-1">DVC</button></div><div class="code-panel" id="git-panel" role="tabpanel" aria-labelledby="git-tab"><pre tabindex="0" aria-label="Git commands, horizontally scrollable"><code>git config diff.tdiff.command 'tdiff-git --key id'
+printf '*.parquet diff=tdiff\n' &gt;&gt; .gitattributes</code></pre></div><div class="code-panel" id="dvc-panel" role="tabpanel" aria-labelledby="dvc-tab" hidden><pre tabindex="0" aria-label="DVC command, horizontally scrollable"><code>tdiff-dvc data/snapshot.parquet --from v1 --to HEAD --key id</code></pre></div></section>
+    </main>
+    <footer><div class="brand footer-brand"><span>tdiff</span><small>Compare local keyed data files.</small></div><nav aria-label="Footer navigation"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="https://github.com/B-Divyesh/sf-tabular-file-diff">Source on GitHub <span class="external">↗</span></a></nav><p>MIT licensed · Built by Param Factory · 0.1.0</p></footer>
+    <div id="route-announcer" class="sr-only" aria-live="polite"></div>
+  </body>
+</html>

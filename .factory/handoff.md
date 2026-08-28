@@ -1,86 +1,113 @@
-# Review 2 handoff
+# Perfection loop 2 handoff
 
-## Current review result
+## Release
 
-Adversarial review 2 was performed read-only against the live site and a clean
-clone of `16f3288`. The detailed report is `.factory/review-2.md`.
-
-**Verdict: FAIL.** The blocking finding is that the one-click sample demo loads
-data but places all actual comparison results below the first 390 px and desktop
-viewport. The review also records 390 px horizontal overflow, missing H1 focus
-on Privacy/Terms/404, unlisted claims, and incomplete 404 metadata.
-
-## How this review was verified
-
-- All 13 commands in `.factory/claims.json` passed from a fresh clone.
-- `npm test`, `npm run build`, `npm run test:a11y`, Python pytest, Ruff, and
-  mypy all passed in that clone.
-- Fresh live Chromium contexts checked 390 px and desktop cold reads, CTA/demo
-  storage/reset/exit, same-origin requests, offline reload, metadata, routing,
-  focus, and link crawl.
-- Installed `tdiff demo` was run from an unrelated temporary directory and
-  wrote its output under a separate `/tmp/tdiff-demo-*` directory.
-
-## Next step
-
-Address F1 in `.factory/review-2.md` first, then add a true-390-px viewport
-test requiring the sample result to be visible without scrolling and rerun the
-claim/quality commands.
-
----
-
-# Historical repair handoff — perfection loop 1
+- Work order: `tabular-file-diff-polish-2`
+- Review baseline: `360e4934f8ff26fa04fc6266545a52181451dc15`
+- Repair implementation: `f977344`
+- Branch: `main`, pushed to `origin/main`
+- Artifact class: Python library plus static Vite site; unchanged
+- Deployment: Azure Static Web Apps via the work-order static deploy helper
+- Deployment ID: `93e62aa3-81b9-4c8f-ba0b-7e317191b368`
+- Live URL: <https://tabular-file-diff.sociobot.in/>
 
 ## Delivered
 
-Repair commit: 7a98c432ccb0ce3ffba5b97e2f576a97bdc22493.
+- Reordered the sample demo so its computed counts, changed columns, schema
+  change, and one changed row are all visible inside the first 390×844 screen.
+- Kept one-click `/demo/` and `?demo=1` entry, the persistent demo banner,
+  Reset demo, and Start for real. Exiting deletes only `demo:` session keys.
+- Fixed the 390 px headline and navigation overflow without changing the Data
+  Limited art-deco transit-poster identity.
+- Added shared H1 focus and route announcements to Privacy, Terms, and 404.
+- Completed 404 metadata, the consistent header/footer, and an actual local
+  preview 404 response.
+- Rewrote every copy item named by review 2 and every C1–C18 item from review
+  1. The full word-count and terminology record is `.factory/copy-audit.md`.
+- Expanded `.factory/claims.json` to 20 unique behavioral claims. Every claim
+  has exactly one tagged test and a clean-state command.
+- Strengthened browser tests for exact first-viewport visibility, real selected
+  CSV files, no extra request, storage isolation, route history/focus, complete
+  route metadata, 404 status, mobile width, Axe, and offline reload.
+- Bumped the service-worker cache to v3 and made document navigations
+  network-first with a cached offline fallback, so deployed fixes replace the
+  old shell for returning visitors.
+- Updated the catalog description to a 63-character verb-first sentence.
+- Added `.factory/polish-2.md`, screenshots, live verification output, and
+  Lighthouse JSON evidence.
 
-- Rewrote the first screen around the reviewed headline, audience, sample CTA,
-  outcome note, and three plain facts.
-- Added direct /demo/ and ?demo=1 entry. The shipped sample is rendered as a
-  completed comparison on first load.
-- Added a persistent demo boundary, Reset demo, Start for real, and the
-  demo:sample-comparison session-storage namespace.
-- Added tdiff demo. It runs bundled CSVs through the installed package in a
-  temporary directory and writes a self-contained report.
-- Added claims registry, tagged browser/package claim tests, demo documentation,
-  copy audit, sample inputs, and a verb-first catalog description.
-- Added real static /demo/, privacy, terms, and 404 artifacts; route-specific
-  titles, canonical/OG/Twitter metadata, favicon, 180px touch icon, social
-  image, sitemap, and static-host 404 override.
-- Preserved the Data Limited transit-poster identity while tightening mobile
-  stacking, banner controls, focus treatment, link labels, and legal skeletons.
+## Clean-clone verification
 
-## Verification
+Verified the exact repair commit in a separate clone at
+`/tmp/tdiff-polish2.Ex17OJ/repo` with a new Python virtual environment and a
+new `npm ci` install.
 
-A separate clean clone at /tmp/tdiff-clean.Z92cC5/repo was made from repair
-commit 7a98c432ccb0ce3ffba5b97e2f576a97bdc22493.
+- Every one of the 20 commands in `.factory/claims.json`: pass. The six browser
+  commands each passed desktop and 390×844; the 14 package commands each ran
+  their one selected tagged test.
+- `pytest`: 36 passed, including a built-wheel consumer in a separate venv.
+- `ruff check src tests`: pass.
+- `mypy src/tabular_file_diff`: success in five source files.
+- `python -m build`: produced the 0.1.0 wheel and source distribution.
+- `npm test`: TypeScript passed; 4 Vitest tests passed.
+- `npm run build`: pass; wrote `dist/site`.
+- `npm run test:a11y`: 22 Playwright tests passed in desktop and true 390×844
+  projects, with no Axe WCAG A/AA violations.
+- `npm audit --audit-level=high`: 0 vulnerabilities.
+- Claim tag audit: 20 IDs, 20 unique IDs, zero missing or duplicate tags.
 
-- npm ci — pass, 0 high vulnerabilities.
-- .verify-venv/bin/pytest — **30 passed**.
-- .verify-venv/bin/ruff check src tests — pass.
-- .verify-venv/bin/mypy src/tabular_file_diff — pass.
-- .verify-venv/bin/python -m build — pass; wheel and sdist produced.
-- npm test — **4 passed**.
-- npm run build:site — pass; writes dist/site.
-- npm run test:a11y -- --reporter=dot — **18 passed** across desktop and
-  390px mobile, including Axe WCAG A/AA checks, keyboard tabs, offline reload,
-  direct demo, reset/exit isolation, and same-origin-only request assertions.
-- Every package claim test in tests/test_claims.py — **8 passed**.
-  The full browser suite executes every browser @claim: test; the direct
-  npm run test:claims -- --grep @claim:demo-one-click command also passed in
-  2 browser projects.
-- Static route smoke: /demo/ returns 200 and an unknown route returns 404
-  under the Vite MPA preview. Built social images are non-empty.
-- Produced assets: JS 7,228 B, CSS 14,690 B, and hero WebP 102,270 B.
+Production build sizes are 7.81 KB raw / 3.34 KB gzip JavaScript, 17.28 KB
+raw / 4.55 KB gzip CSS, and 102.27 KB for the hero WebP. They are below the
+200 KB, 50 KB, and 300 KB budgets.
 
-## Deploy
+## Live verification after deployment
 
-The site remains a static Vite artifact. Push main to invoke the factory
-work-order deployment for dist/site; no infrastructure configuration was
-changed outside the repository.
+Cold checks ran against the custom domain on 28 August 2026 after deployment.
 
-## Historical known gaps
+- The worker `verify-url.sh` returned HTTP 200, title
+  `tdiff — Compare keyed data files`, `lang=en`, one H1, one main landmark,
+  zero missing alt attributes, zero unlabeled buttons, and zero console errors.
+- The full remote Playwright suite ran with
+  `PLAYWRIGHT_BASE_URL=https://tabular-file-diff.sociobot.in` and passed 22/22.
+  This includes the direct demo, viewport proof, reset/exit isolation, selected
+  local files, same-origin-only requests, no cookies/local storage, offline
+  reload, route focus/history, 404, mobile width, and Axe.
+- Route checks: `/`, `/demo/`, `/privacy/`, and `/terms/` return 200 with their
+  route titles. `/does-not-exist` returns 404 with `Route not found — tdiff`.
+- Live response headers include CSP with `frame-ancestors 'none'`,
+  `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, strict referrer
+  policy, and a restrictive permissions policy.
+- Lighthouse mobile: Performance 100, Accessibility 100, Best Practices 100,
+  SEO 100; LCP 1.4 s, TBT 0 ms, CLS 0.
+- Evidence: `.factory/evidence/polish-2-live-demo-mobile.png`,
+  `.factory/evidence/live-verify/`, and
+  `.factory/evidence/lighthouse-live-mobile.json`.
 
-This section predates review 2 and is superseded by the findings above and in
-`.factory/review-2.md`.
+## Run and verify
+
+```bash
+python3 -m venv .venv
+. .venv/bin/activate
+python3 -m pip install -e '.[dev]'
+pytest
+ruff check src tests
+mypy src/tabular_file_diff
+python -m build
+npm ci
+npm test
+npm run build
+npm run test:a11y
+```
+
+Run a specific claim using its exact command in `.factory/claims.json`. Run the
+browser suite against production with:
+
+```bash
+PLAYWRIGHT_BASE_URL=https://tabular-file-diff.sociobot.in npm run test:a11y
+```
+
+## Known gaps and next steps
+
+No review-1 or review-2 finding remains open. The package was built and checked
+as an external wheel consumer, but was not published to PyPI because registry
+credentials and publication belong to the factory release process.

@@ -44,12 +44,13 @@ test("@claim:browser-private demo sends no request beyond this origin", async ({
   const requests: { origin: string; method: string }[] = [];
   page.on("request", (request) => requests.push({ origin: new URL(request.url()).origin, method: request.method() }));
   await page.goto("/demo/");
+  const productOrigin = new URL(page.url()).origin;
   await expectDemo(page);
   await page.locator("#old-file").setInputFiles({ name: "private-old.csv", mimeType: "text/csv", buffer: Buffer.from("id,value\n1,old\n2,removed\n") });
   await page.locator("#new-file").setInputFiles({ name: "private-new.csv", mimeType: "text/csv", buffer: Buffer.from("id,value\n1,new\n3,added\n") });
   await page.getByRole("button", { name: "Compare rows" }).click();
   await expect(page.locator("#modified-count")).toHaveText("1");
-  expect(new Set(requests.map((request) => request.origin))).toEqual(new Set(["http://127.0.0.1:4173"]));
+  expect(new Set(requests.map((request) => request.origin))).toEqual(new Set([productOrigin]));
   expect(requests.every((request) => request.method === "GET")).toBe(true);
   expect(await page.context().cookies()).toEqual([]);
   expect(await page.evaluate(() => Object.keys(localStorage))).toEqual([]);
