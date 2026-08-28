@@ -1,42 +1,80 @@
-# Review 3 handoff
+# Perfection loop 3 handoff
 
 ## Delivered
 
-- Wrote `.factory/review-3.md`; no product source, deployment, or test code was
-  modified.
-- Ran a cold live review at 390 x 844 and 1440 x 900, direct-demo sandbox and
-  storage checks, route/metadata/focus checks, and link crawl.
-- Created a fresh clone at `/tmp/tdiff-review3.rOgI9q/repo`, installed new
-  Python and npm dependencies, and ran all 20 registered claim commands.
-- Ran `tdiff demo` from an unrelated temporary directory.
+- Replaced the separate TypeScript CSV comparator with the built
+  `tabular-file-diff` Python wheel running in a self-hosted Pyodide worker.
+- The in-page package playground now handles editable CSV plus selected CSV,
+  gzip CSV, Parquet, Arrow IPC, and Feather files through `diff_files`.
+- Added numeric tolerance, package JSON output, self-contained HTML report
+  download, a working fresh-project snippet, exact engine versions, loading and
+  recovery states, and offline package caching.
+- Preserved the direct `?demo=1` and `/demo/` path, first-screen result,
+  persistent sandbox banner, Reset demo, Start for real, and isolated `demo:`
+  session state.
+- Removed `site/src/diff.ts` and its look-alike implementation entirely.
+- Fixed DuckDB 1.1 compatibility for CSV options and Arrow-table extraction.
+- Expanded `.factory/claims.json` to 21 claims and added real wheel/fixture
+  parity tests.
+- Updated the catalog line, README, demo documentation, copy audit, design
+  rationale, changelog, and cumulative finding ledger.
 
-## Result
+Implementation commit: `631a2a822e299f0d3bb538860776ad9d985153e5`.
 
-**FAIL.** One blocking finding remains: the one-click browser demo uses the
-separate `site/src/diff.ts` CSV implementation, not the published Python
-library. It cannot exercise the library's Parquet/Arrow/DuckDB/PyArrow/API/
-integration behavior. See `F-3-1` in `.factory/review-3.md` for evidence and
-the concrete required fix.
+## Verification
 
-All other reviewed first-read, direct-demo mechanics, claim tests, privacy
-capture, offline claim coverage, copy, route/metadata, link, responsive, and
-historical-regression checks passed.
-
-## Verify
+Fresh clone: `/tmp/tdiff-polish3.pDwQzV/repo` at `631a2a8`.
 
 ```bash
 npm ci
+python3 -m venv .venv
+.venv/bin/python -m pip install -e '.[dev]' build
 npm test
 npm run build
+.venv/bin/python -m pytest
+.venv/bin/ruff check src tests scripts
+.venv/bin/mypy src/tabular_file_diff
+.venv/bin/python -m build
 npm run test:a11y
-python3 -m pytest tests/test_claims.py
 ```
 
-Run each exact clean-state claim command from `.factory/claims.json` as well.
-The direct browser demo is at `/demo/`; the installed-package demo is `tdiff
-demo` from any directory.
+Results:
 
-## Next step
+- Every exact command in `.factory/claims.json`: 21/21 passed individually.
+- Python: 41 passed.
+- Site unit tests: 2 passed.
+- Desktop/mobile Playwright and Axe: 24 passed locally and 24 passed live.
+- Ruff: clean. Mypy: clean across five source modules.
+- Python wheel and sdist: built successfully.
+- Vite output: `dist/site`, 45 MB total. Initial JS is 10.29 KB raw and
+  initial CSS is 18.95 KB raw. The Python runtime is deferred to the demo.
+- Local Lighthouse: 100 Performance, 100 Accessibility, 100 Best Practices,
+  100 SEO; LCP 1.5 s, TBT 0 ms, CLS 0.
+- Live Lighthouse: 100 Performance, 100 Accessibility, 100 Best Practices,
+  100 SEO; LCP 1.4 s, TBT 0 ms, CLS 0.
+- URL verifier: home and demo passed locally and live with no console errors,
+  one H1, `lang`, `main`, image alternatives, and labeled buttons.
+- Live unknown route: HTTP 404 with the designed recovery document.
 
-Implement a local, in-page playground that executes the published package and
-add package-parity claims/tests. Then rerun the full adversarial review.
+Evidence is under `.factory/evidence/polish-3-*` and
+`.factory/evidence/lighthouse-polish-3-*.json`. The finding-by-finding ledger is
+`.factory/polish-3.md`.
+
+## Deployment
+
+- Production URL: <https://tabular-file-diff.sociobot.in/>
+- Direct demo: <https://tabular-file-diff.sociobot.in/?demo=1>
+- Azure Static Web Apps deployment: `d51f5f08-fa68-426d-ba1e-888a1387bd47`
+- The deployed artifact was built from implementation commit `631a2a8`.
+- A cold post-deploy run passed all 24 live Playwright checks, including the
+  real wheel, every browser fixture, privacy interception, offline reload,
+  metadata, focus, 404, mobile width, and Axe.
+
+## Known gaps
+
+None. All findings from reviews 1–3 and polish records are closed. The browser
+runtime is intentionally deferred and self-hosted; it does not affect the
+landing-page performance budget.
+
+Registry publishing was not performed. The release artifacts are ready for the
+factory-owned PyPI publishing step.

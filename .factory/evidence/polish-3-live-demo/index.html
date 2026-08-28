@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#101a25" />
+    <link rel="canonical" href="https://tabular-file-diff.sociobot.in/demo/" />
+    <meta name="description" content="Run the tdiff Python package locally on CSV, Parquet, or Arrow sample files." />
+    <meta property="og:title" content="Demo — tdiff" />
+    <meta property="og:description" content="Run the tdiff Python package locally on CSV, Parquet, or Arrow sample files." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://tabular-file-diff.sociobot.in/demo/" />
+    <meta property="og:image" content="https://tabular-file-diff.sociobot.in/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Demo — tdiff" />
+    <meta name="twitter:description" content="Run the tdiff Python package locally on CSV, Parquet, or Arrow sample files." />
+    <meta name="twitter:image" content="https://tabular-file-diff.sociobot.in/og-image.png" />
+    <title>Demo — tdiff</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <script type="module" crossorigin src="/assets/main-nMQtd1gx.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/main-uPuv-_Wp.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header"><a class="brand" href="/" aria-label="tdiff home"><svg aria-hidden="true" viewBox="0 0 48 48" width="36" height="36"><path d="M6 10h20a12 12 0 0 1 0 24H6M42 10H27M42 34H27" /><circle cx="26" cy="22" r="4" /></svg><span>tdiff</span></a><nav aria-label="Primary navigation"><a href="/demo/" aria-current="page">Demo</a><a href="/#install">Install</a><a href="/privacy/">Privacy</a><a href="https://github.com/B-Divyesh/sf-tabular-file-diff">Source on GitHub <span class="external">↗</span></a></nav></header>
+    <div class="demo-banner" id="demo-banner" role="status"><strong>Demo — sample data, nothing is saved</strong><span><button id="reset-demo" type="button">Reset demo</button><a href="/" id="start-real">Start for real</a></span></div>
+    <div class="offline-notice" id="offline-notice" role="status" hidden>You’re offline. The saved demo can still open.</div>
+    <main id="main">
+      <section class="demo demo-page" aria-labelledby="demo-title">
+        <div class="demo-intro"><div><p class="line-label"><span>01</span> Package playground</p><h1 id="demo-title">Run the package in your browser</h1></div><p>The shipped Python wheel runs here with DuckDB and PyArrow. Your files stay in this tab.</p></div>
+        <p class="engine-proof" id="engine-proof" data-package-ready="false" role="status">Loading the local Python package…</p>
+        <div class="demo-result demo-proof" id="demo-result" aria-label="Package comparison result" aria-busy="true">
+          <p class="proof-label">Package result</p>
+          <div class="metric-grid" aria-label="Comparison counts"><div class="metric added"><span>Added</span><strong id="added-count">1</strong></div><div class="metric removed"><span>Removed</span><strong id="removed-count">1</strong></div><div class="metric modified"><span>Changed</span><strong id="modified-count">2</strong></div><div class="metric unchanged"><span>Unchanged</span><strong id="unchanged-count">0</strong></div></div>
+          <div class="proof-details"><p><strong>Columns</strong><span id="proof-columns">amount 1 · status 1</span></p><p><strong>Schema</strong><span id="proof-schema">region added</span></p><p><strong>Changed row</strong><span id="proof-row">A-101 · status: open → closed</span></p></div>
+        </div>
+        <p class="demo-status" id="demo-status" role="status" aria-live="polite">Running the packaged comparison locally…</p>
+        <section class="demo-workbench" aria-labelledby="workbench-title">
+        <div class="workbench-heading"><div><p class="line-label"><span>02</span> Your files</p><h2 id="workbench-title">Compare supported files</h2></div><p>Edit CSV text or choose CSV, gzip CSV, Parquet, Arrow IPC, or Feather files.</p></div>
+        <div class="sample-picker"><label for="sample-format">Shipped sample format</label><select id="sample-format"><option value="csv">CSV</option><option value="gzip">Gzip CSV</option><option value="parquet">Parquet</option><option value="arrow">Arrow IPC</option></select><button class="button secondary" id="sample-button" type="button">Load format sample</button></div>
+        <div class="demo-controls">
+          <div class="file-platform"><label for="old-file">Old data snapshot</label><input id="old-file" type="file" accept=".csv,.gz,.parquet,.pq,.arrow,.ipc,.feather,text/csv,application/gzip,application/vnd.apache.parquet" /><span id="old-file-name">sample-old.csv</span></div>
+          <div class="junction" aria-hidden="true"><span></span><b>KEY</b><span></span></div>
+          <div class="file-platform"><label for="new-file">New data snapshot</label><input id="new-file" type="file" accept=".csv,.gz,.parquet,.pq,.arrow,.ipc,.feather,text/csv,application/gzip,application/vnd.apache.parquet" /><span id="new-file-name">sample-new.csv</span></div>
+        </div>
+        <div class="csv-editors"><div><label for="old-editor">Old CSV text</label><textarea id="old-editor" rows="5" spellcheck="false">id,name,status,amount
+A-101,Aster,open,125
+A-102,Bram,open,80
+A-103,Cleo,hold,42</textarea></div><div><label for="new-editor">New CSV text</label><textarea id="new-editor" rows="5" spellcheck="false">id,name,status,amount,region
+A-101,Aster,closed,125,north
+A-102,Bram,open,84,south
+A-104,Dara,open,55,west</textarea></div></div>
+        <div class="compare-bar"><div><label for="key-column">Primary key</label><input id="key-column" type="text" value="id" autocomplete="off" /></div><div><label for="tolerance">Numeric tolerance</label><input id="tolerance" type="number" value="0" min="0" step="any" inputmode="decimal" /></div><button class="button primary" id="compare-button" type="button">Compare with package</button></div>
+        <div class="demo-details">
+          <div class="result-columns"><section aria-labelledby="column-result-title"><h2 id="column-result-title">Changes by column</h2><ul id="column-changes"><li>amount — 1</li><li>status — 1</li></ul></section><section aria-labelledby="schema-result-title"><h2 id="schema-result-title">Schema changes</h2><ul id="schema-changes"><li>Added: region</li></ul></section></div>
+          <section aria-labelledby="row-result-title"><h2 id="row-result-title">Changed-row sample</h2><div class="table-scroll" tabindex="0" aria-label="Changed rows, horizontally scrollable"><table id="change-table"><thead><tr><th scope="col">Status</th><th scope="col">Key (id)</th><th scope="col">Change</th></tr></thead><tbody><tr><td class="status-added">added</td><td>A-104</td><td>New row</td></tr><tr><td class="status-removed">removed</td><td>A-103</td><td>Old row</td></tr><tr><td class="status-modified">changed</td><td>A-101</td><td>status: open → closed</td></tr><tr><td class="status-modified">changed</td><td>A-102</td><td>amount: 80 → 84</td></tr></tbody></table></div></section>
+          <section aria-labelledby="output-title"><h2 id="output-title">Package JSON output</h2><pre id="package-output" tabindex="0" aria-label="Package JSON output">Waiting for the packaged comparison.</pre><button class="button secondary download-report" id="download-report" type="button" disabled>Download HTML report</button></section>
+        </div>
+        <section class="api-snippet" aria-labelledby="snippet-title"><div><p class="line-label"><span>03</span> Fresh project</p><h2 id="snippet-title">Use the same Python API</h2></div><pre tabindex="0" aria-label="Python installation and comparison example"><code id="python-snippet">python3 -m pip install tabular-file-diff
+python3 - &lt;&lt;'PY'
+from tabular_file_diff import diff_files
+result = diff_files("old.parquet", "new.parquet", key="id")
+print(result.to_dict())
+PY</code></pre><button class="button secondary" id="copy-snippet" type="button">Copy Python snippet</button></section>
+        </section>
+      </section>
+    </main>
+    <footer><div class="brand footer-brand"><span>tdiff</span><small>Compare local keyed data files.</small></div><nav aria-label="Footer navigation"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="https://github.com/B-Divyesh/sf-tabular-file-diff">Source on GitHub <span class="external">↗</span></a></nav><p>MIT licensed · Built by Param Factory · 0.1.0</p></footer>
+    <div id="route-announcer" class="sr-only" aria-live="polite"></div>
+  </body>
+</html>
