@@ -1,4 +1,35 @@
-# Repair handoff — perfection loop 1
+# Review 2 handoff
+
+## Current review result
+
+Adversarial review 2 was performed read-only against the live site and a clean
+clone of `16f3288`. The detailed report is `.factory/review-2.md`.
+
+**Verdict: FAIL.** The blocking finding is that the one-click sample demo loads
+data but places all actual comparison results below the first 390 px and desktop
+viewport. The review also records 390 px horizontal overflow, missing H1 focus
+on Privacy/Terms/404, unlisted claims, and incomplete 404 metadata.
+
+## How this review was verified
+
+- All 13 commands in `.factory/claims.json` passed from a fresh clone.
+- `npm test`, `npm run build`, `npm run test:a11y`, Python pytest, Ruff, and
+  mypy all passed in that clone.
+- Fresh live Chromium contexts checked 390 px and desktop cold reads, CTA/demo
+  storage/reset/exit, same-origin requests, offline reload, metadata, routing,
+  focus, and link crawl.
+- Installed `tdiff demo` was run from an unrelated temporary directory and
+  wrote its output under a separate `/tmp/tdiff-demo-*` directory.
+
+## Next step
+
+Address F1 in `.factory/review-2.md` first, then add a true-390-px viewport
+test requiring the sample result to be visible without scrolling and rerun the
+claim/quality commands.
+
+---
+
+# Historical repair handoff — perfection loop 1
 
 ## Delivered
 
@@ -49,9 +80,7 @@ The site remains a static Vite artifact. Push main to invoke the factory
 work-order deployment for dist/site; no infrastructure configuration was
 changed outside the repository.
 
-## Known gaps
+## Historical known gaps
 
-No known blocking findings remain. The browser preview is deliberately labeled
-as CSV-only; Parquet and Arrow are exercised by the installed package and its
-claim test rather than represented as browser support.
-
+This section predates review 2 and is superseded by the findings above and in
+`.factory/review-2.md`.
