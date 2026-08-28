@@ -1,4 +1,19 @@
-# Perfection loop 3 handoff
+# Review 4 handoff
+
+## Review 4 result
+
+No product code was changed. The adversarial first-read review is recorded in
+`.factory/review-4.md` and returned **PASS** with zero findings.
+
+Verification used a fresh clone at
+`/tmp/tabular-file-diff-review4.yCnQ5r/repo`: `npm test` passed, `npm run build`
+produced `dist/site`, all 24 live Playwright checks passed, all 14 package
+claim commands passed separately, and the Python suite passed (41 tests).
+Fresh 390 × 844 and desktop live checks confirmed the first-read copy, one-click
+package playground, visible sample result, sandbox isolation, privacy/offline
+behavior, metadata, focus, 404, link crawl, and visual identity.
+
+No deployment, publication, or infrastructure action was performed.
 
 ## Delivered
 
