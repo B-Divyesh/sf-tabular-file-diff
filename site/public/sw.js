@@ -1,5 +1,5 @@
-const CACHE = "tdiff-shell-v2";
-const SHELL = ["/", "/demo/", "/privacy/", "/terms/", "/data-limited-hero.webp", "/favicon.svg"];
+const CACHE = "tdiff-shell-v3";
+const SHELL = ["/", "/demo/", "/privacy/", "/terms/", "/404.html", "/data-limited-hero.webp", "/favicon.svg", "/apple-touch-icon.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)));
@@ -13,6 +13,15 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET" || new URL(event.request.url).origin !== self.location.origin) return;
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      fetch(event.request).then((response) => {
+        if (response.ok) caches.open(CACHE).then((cache) => cache.put(event.request, response.clone()));
+        return response;
+      }).catch(async () => (await caches.match(event.request)) || (await caches.match("/")))
+    );
+    return;
+  }
   event.respondWith(
     caches.match(event.request).then((cached) => cached || fetch(event.request).then((response) => {
       if (response.ok) caches.open(CACHE).then((cache) => cache.put(event.request, response.clone()));

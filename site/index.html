@@ -30,7 +30,7 @@
     <main id="main">
       <section class="hero" aria-labelledby="hero-title">
         <div class="hero-copy">
-          <p class="line-label"><span>01</span> Key-aware file comparison</p>
+          <p class="line-label"><span>01</span> Compare files by a row ID</p>
           <h1 id="hero-title">Compare keyed data snapshots</h1>
           <p class="hero-lede">For data engineers reviewing CSV, Parquet, or Arrow changes in Git or DVC.</p>
           <div class="hero-actions"><a class="button primary" href="/demo/">Try it with sample data</a><span class="action-note">See added, removed, and changed rows immediately.</span></div>
@@ -39,13 +39,13 @@
         <figure class="hero-art"><img src="/data-limited-hero.webp" width="1200" height="800" alt="Art-deco data trains meeting at a brass key junction and splitting into change routes" fetchpriority="high" /><figcaption>Two data snapshots meet at one primary key.</figcaption></figure>
       </section>
       <section class="route-board" aria-labelledby="route-title">
-        <div><p class="line-label"><span>02</span> Three steps</p><h2 id="route-title">How keyed comparison works</h2></div>
-        <ol class="route-list"><li class="route-old"><span class="route-dot">A</span><strong>Choose snapshots</strong><small>Old and new files</small></li><li class="route-key"><span class="route-dot">K</span><strong>Name the key</strong><small>Stable row identity</small></li><li class="route-new"><span class="route-dot">Δ</span><strong>Compare changes</strong><small>Rows, columns, schema</small></li></ol>
+        <div><p class="line-label"><span>02</span> Compare files in three steps</p><h2 id="route-title">How keyed comparison works</h2></div>
+        <ol class="route-list"><li class="route-old"><span class="route-dot">A</span><strong>Choose snapshots</strong><small>Old and new files</small></li><li class="route-key"><span class="route-dot">K</span><strong>Name the key</strong><small>A column that identifies each row</small></li><li class="route-new"><span class="route-dot">Δ</span><strong>Compare changes</strong><small>Rows, columns, and schema</small></li></ol>
       </section>
       <section class="benefits" aria-labelledby="benefits-title">
-        <p class="line-label"><span>03</span> Local review</p><h2 id="benefits-title">Use the comparison where your files live</h2>
+        <p class="line-label"><span>03</span> Review data files on your machine</p><h2 id="benefits-title">Use the comparison where your files live</h2>
         <div class="benefit-grid">
-          <article><span class="poster-number">CSV</span><h3>Preview a sample</h3><p>The browser preview compares the shipped CSV sample in this tab.</p></article>
+          <article><span class="poster-number">CSV</span><h3>Try the sample demo</h3><p>The sample demo compares two shipped CSV files in this tab.</p></article>
           <article><span class="poster-number">CLI</span><h3>Run the package demo</h3><p><code>tdiff demo</code> runs the packaged sample in a temporary directory.</p></article>
           <article><span class="poster-number">HTML</span><h3>Write a report</h3><p>The CLI can write a self-contained HTML report beside your work.</p></article>
         </div>

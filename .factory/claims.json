@@ -1,93 +1,142 @@
 [
   {
     "id": "demo-one-click",
-    "claim": "The sample demo immediately shows added, removed, changed, and schema results.",
-    "where": "home action and /demo",
+    "claim": "One click opens a completed sample result with row, column, and schema changes visible on a phone screen.",
+    "where": "home action and /demo/",
     "test": "npm run test:claims -- --grep @claim:demo-one-click",
-    "sandbox": "fresh browser context opens /demo/"
+    "sandbox": "fresh 390 x 844 browser opens /?demo=1 and /demo/; asserts the result board and changed-row example are inside the initial viewport"
   },
   {
     "id": "demo-isolation",
-    "claim": "Demo state is isolated under demo: and Start for real removes it.",
-    "where": "/demo banner and privacy page",
+    "claim": "Sample demo state uses only demo: session storage and is discarded by Start for real.",
+    "where": "/demo/ banner, privacy page, .factory/demo.md",
     "test": "npm run test:claims -- --grep @claim:demo-isolation",
-    "sandbox": "fresh browser context, Reset demo, then Start for real"
+    "sandbox": "fresh browser seeds a non-demo key, resets the sample, exits, and checks that only demo state was removed"
   },
   {
     "id": "browser-private",
-    "claim": "The browser preview sends no request beyond this origin.",
-    "where": "/demo and privacy page",
+    "claim": "The sample demo uploads no files and loads no analytics, trackers, or third-party resources.",
+    "where": "/demo/ and privacy page",
     "test": "npm run test:claims -- --grep @claim:browser-private",
-    "sandbox": "request interception over direct demo flow"
+    "sandbox": "request interception, cookies, local storage, and selected-file comparison over the complete demo flow"
+  },
+  {
+    "id": "browser-csv",
+    "claim": "The sample demo compares shipped or selected CSV files in this browser tab.",
+    "where": "home, /demo/, README, privacy page",
+    "test": "npm run test:claims -- --grep @claim:browser-csv",
+    "sandbox": "fresh browser supplies two CSV files, compares them without a new request, and asserts the result"
   },
   {
     "id": "no-account",
     "claim": "The sample demo needs no account.",
     "where": "landing facts",
     "test": "npm run test:claims -- --grep @claim:no-account",
-    "sandbox": "fresh browser context opens /demo/ and checks the visible flow"
+    "sandbox": "fresh browser opens /demo/ and checks the completed flow has no login or account form"
   },
   {
     "id": "offline-demo",
-    "claim": "The demo reloads offline after its first visit.",
-    "where": "offline notice",
+    "claim": "The saved sample demo reloads offline after its first visit.",
+    "where": "offline notice and .factory/demo.md",
     "test": "npm run test:claims -- --grep @claim:offline-demo",
-    "sandbox": "controlled service-worker client then browser context offline"
+    "sandbox": "fresh service-worker client visits /demo/, goes offline, reloads, and asserts the completed result"
   },
   {
     "id": "package-formats",
-    "claim": "tdiff compares keyed CSV, Parquet, and Arrow data files.",
-    "where": "home, README",
-    "test": "python3 -m pytest tests/test_claims.py -k claim_package_formats",
-    "sandbox": "temporary files for each supported format through CLI JSON output"
+    "claim": "tdiff compares keyed CSV, gzip CSV, Parquet, and Arrow IPC files.",
+    "where": "home and README",
+    "test": "python3 -m pytest tests/test_claims.py -k test_claim_package_formats",
+    "sandbox": "temporary pairs for every named format through CLI JSON output"
+  },
+  {
+    "id": "comparison-results",
+    "claim": "tdiff reports added, removed, changed, and unchanged rows plus column and schema changes.",
+    "where": "home and README",
+    "test": "python3 -m pytest tests/test_claims.py -k test_claim_comparison_results",
+    "sandbox": "temporary snapshots that produce all four row counts, value-column changes, and an added schema column"
+  },
+  {
+    "id": "tolerance-semantics",
+    "claim": "Numeric tolerance is inclusive, affects only numeric values, keeps null changes, and defaults to exact comparison.",
+    "where": "README",
+    "test": "python3 -m pytest tests/test_claims.py -k test_claim_tolerance_semantics",
+    "sandbox": "boundary numeric, text, null, and default comparisons in temporary CSV files"
+  },
+  {
+    "id": "cli-statuses",
+    "claim": "The CLI exits 0 for no changes, 1 for differences, and 2 for invalid input or operational errors.",
+    "where": "README and CLI help",
+    "test": "python3 -m pytest tests/test_claims.py -k test_claim_cli_statuses",
+    "sandbox": "temporary identical, changed, malformed, and missing inputs"
+  },
+  {
+    "id": "key-validation",
+    "claim": "tdiff rejects duplicate and null primary keys.",
+    "where": "README",
+    "test": "python3 -m pytest tests/test_claims.py -k test_claim_key_validation",
+    "sandbox": "temporary duplicate-key and null-key CSV inputs"
   },
   {
     "id": "html-report",
     "claim": "The CLI writes a self-contained HTML report.",
-    "where": "home, README",
-    "test": "python3 -m pytest tests/test_claims.py -k claim_html_report",
-    "sandbox": "temporary CSV inputs and generated report"
+    "where": "home and README",
+    "test": "python3 -m pytest tests/test_claims.py -k test_claim_html_report",
+    "sandbox": "temporary inputs and generated report with no script or remote asset"
   },
   {
     "id": "git-wrapper",
-    "claim": "tdiff-git lets git diff print changed keyed CSV files without an external-driver error.",
+    "claim": "tdiff-git lets git diff print changed keyed files without an external-driver error.",
     "where": "README",
-    "test": "python3 -m pytest tests/test_claims.py -k claim_git_wrapper",
-    "sandbox": "temporary Git repository and changed CSV"
+    "test": "python3 -m pytest tests/test_claims.py -k test_claim_git_wrapper",
+    "sandbox": "temporary real Git repository and changed CSV"
   },
   {
     "id": "dvc-wrapper",
-    "claim": "tdiff-dvc compares a materialized DVC revision with the workspace.",
+    "claim": "tdiff-dvc materializes a requested DVC revision in a temporary directory and compares it with the workspace.",
     "where": "README",
-    "test": "python3 -m pytest tests/test_claims.py -k claim_dvc_wrapper",
-    "sandbox": "temporary DVC adapter materialization boundary"
+    "test": "python3 -m pytest tests/test_claims.py -k test_claim_dvc_wrapper",
+    "sandbox": "temporary DVC adapter boundary records the materialization path and verifies cleanup"
   },
   {
     "id": "mit-license",
-    "claim": "tdiff is free and MIT licensed.",
-    "where": "home, README",
-    "test": "python3 -m pytest tests/test_claims.py -k claim_mit_license",
-    "sandbox": "repository license file"
+    "claim": "tdiff is free software under the MIT License.",
+    "where": "home, README, terms page",
+    "test": "python3 -m pytest tests/test_claims.py -k test_claim_mit_license",
+    "sandbox": "repository LICENSE text and project license metadata"
   },
   {
     "id": "local-no-telemetry",
-    "claim": "Local package comparisons make no network connection or telemetry request.",
-    "where": "README, privacy page",
-    "test": "python3 -m pytest tests/test_claims.py -k claim_local_no_telemetry",
-    "sandbox": "temporary local CSV comparison with socket creation blocked"
+    "claim": "Package and CLI comparisons run locally without telemetry or network connections.",
+    "where": "landing facts, README, privacy page",
+    "test": "python3 -m pytest tests/test_claims.py -k test_claim_local_no_telemetry",
+    "sandbox": "temporary local comparison with socket creation blocked"
   },
   {
-    "id": "cli-contract",
-    "claim": "tdiff reports keyed changes and the Python API returns Arrow tables.",
+    "id": "python-api",
+    "claim": "diff_files returns a typed DiffResult whose added, removed, and modified results are PyArrow tables.",
     "where": "README",
-    "test": "python3 -m pytest tests/test_claims.py -k claim_cli_contract_and_python_api",
-    "sandbox": "temporary CSV inputs through CLI JSON and Python API"
+    "test": "python3 -m pytest tests/test_claims.py -k test_claim_python_api",
+    "sandbox": "temporary snapshots through the public Python API with runtime type assertions"
   },
   {
     "id": "packaged-demo",
-    "claim": "tdiff demo runs the bundled sample and writes a report in a temporary directory.",
-    "where": "home, README",
-    "test": "python3 -m pytest tests/test_claims.py -k claim_packaged_demo",
-    "sandbox": "installed package sample command"
+    "claim": "tdiff demo uses bundled sample files and writes a self-contained report in a new temporary directory.",
+    "where": "home, README, .factory/demo.md",
+    "test": "python3 -m pytest tests/test_claims.py -k test_claim_packaged_demo",
+    "sandbox": "installed-package command from an unrelated directory plus source and wheel sample inspection"
+  },
+  {
+    "id": "input-read-only",
+    "claim": "Comparisons do not alter the input files.",
+    "where": "terms page",
+    "test": "python3 -m pytest tests/test_claims.py -k test_claim_input_read_only",
+    "sandbox": "temporary inputs are hashed before and after CLI, API, HTML, and failed comparisons"
+  },
+  {
+    "id": "python-runtime",
+    "claim": "tabular-file-diff supports Python 3.10 and later.",
+    "where": "README and package metadata",
+    "test": "python3 -m pytest tests/test_claims.py -k test_claim_python_runtime",
+    "sandbox": "assert requires-python and trove classifiers in pyproject metadata"
   }
 ]

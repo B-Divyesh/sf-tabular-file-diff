@@ -94,6 +94,18 @@ function renderResult(result: BrowserDiff): void {
   renderList(byId("column-changes"), Object.entries(result.columnChanges).filter(([, count]) => count > 0).map(([name, count]) => `${name} — ${count}`) || ["No value-column changes"]);
   const schema = [...result.schema.added.map((name) => `Added: ${name}`), ...result.schema.removed.map((name) => `Removed: ${name}`)];
   renderList(byId("schema-changes"), schema.length ? schema : ["No schema changes"]);
+  const changedColumns = Object.entries(result.columnChanges).filter(([, count]) => count > 0);
+  const proofColumns = byId("proof-columns");
+  if (proofColumns) proofColumns.textContent = changedColumns.length
+    ? changedColumns.map(([name, count]) => `${name} ${count}`).join(" · ")
+    : "none";
+  const proofSchema = byId("proof-schema");
+  if (proofSchema) proofSchema.textContent = schema.length
+    ? [...result.schema.added.map((name) => `${name} added`), ...result.schema.removed.map((name) => `${name} removed`)].join(" · ")
+    : "unchanged";
+  const proofRow = byId("proof-row");
+  const example = result.changedRows.find((change) => change.status === "modified") ?? result.changedRows[0];
+  if (proofRow) proofRow.textContent = example ? `${example.key} · ${example.changes}` : "No changed rows";
   const table = byId<HTMLTableElement>("change-table");
   if (!table || !keySelect) return;
   table.replaceChildren();
@@ -104,12 +116,13 @@ function renderResult(result: BrowserDiff): void {
   const body = table.createTBody();
   result.changedRows.forEach((change) => {
     const row = body.insertRow();
-    const state = row.insertCell(); state.textContent = change.status; state.className = `status-${change.status}`;
+    const state = row.insertCell(); state.textContent = change.status === "modified" ? "changed" : change.status; state.className = `status-${change.status}`;
     row.insertCell().textContent = change.key; row.insertCell().textContent = change.changes;
   });
 }
 
 function loadSample(): void {
+  if (inDemo) sessionStorage.setItem("demo:sample-comparison", "loaded");
   oldTable = parseCsv(sampleOld);
   newTable = parseCsv(sampleNew);
   const oldName = byId("old-file-name"); const newName = byId("new-file-name");
@@ -130,7 +143,8 @@ async function compare(): Promise<void> {
     renderResult(result);
     resultPanel.hidden = false;
     const total = result.counts.added + result.counts.removed + result.counts.modified;
-    setStatus(`Comparison complete: ${total} changed rows and ${result.schema.added.length + result.schema.removed.length} schema changes.`, "success");
+    const schemaCount = result.schema.added.length + result.schema.removed.length;
+    setStatus(`Comparison complete: ${total} changed rows and ${schemaCount} schema ${schemaCount === 1 ? "change" : "changes"}.`, "success");
   } catch (error) {
     resultPanel.hidden = true;
     setStatus(error instanceof Error ? error.message : "The comparison could not be completed.", "error");
@@ -161,10 +175,11 @@ if (oldInput && newInput && keySelect && compareButton && resultPanel) {
   compareButton.addEventListener("click", () => void compare());
   byId<HTMLButtonElement>("sample-button")?.addEventListener("click", loadSample);
   if (inDemo) {
-    sessionStorage.setItem("demo:sample-comparison", "loaded");
     loadSample();
     byId<HTMLButtonElement>("reset-demo")?.addEventListener("click", loadSample);
-    byId<HTMLAnchorElement>("start-real")?.addEventListener("click", () => sessionStorage.removeItem("demo:sample-comparison"));
+    byId<HTMLAnchorElement>("start-real")?.addEventListener("click", () => {
+      Object.keys(sessionStorage).filter((key) => key.startsWith("demo:")).forEach((key) => sessionStorage.removeItem(key));
+    });
   }
 }
 

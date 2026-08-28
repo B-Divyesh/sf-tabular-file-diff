@@ -27,19 +27,26 @@
     <div class="offline-notice" id="offline-notice" role="status" hidden>You’re offline. The saved demo can still open.</div>
     <main id="main">
       <section class="demo demo-page" aria-labelledby="demo-title">
-        <div class="section-heading"><div><p class="line-label"><span>01</span> Sample comparison</p><h1 id="demo-title">See keyed CSV changes</h1></div><p>This browser preview uses the packaged sample. Use <code>tdiff demo</code> to run the real package on the same shipped CSV sample.</p></div>
+        <div class="demo-intro"><div><p class="line-label"><span>01</span> Sample demo</p><h1 id="demo-title">Compare sample CSV changes</h1></div><p>The sample demo is ready. Use <code>tdiff demo</code> to compare the same files with the package.</p></div>
+        <div class="demo-result demo-proof" id="demo-result" aria-label="Sample comparison result">
+          <p class="proof-label">Sample result</p>
+          <div class="metric-grid" aria-label="Comparison counts"><div class="metric added"><span>Added</span><strong id="added-count">1</strong></div><div class="metric removed"><span>Removed</span><strong id="removed-count">1</strong></div><div class="metric modified"><span>Changed</span><strong id="modified-count">2</strong></div><div class="metric unchanged"><span>Unchanged</span><strong id="unchanged-count">0</strong></div></div>
+          <div class="proof-details"><p><strong>Columns</strong><span id="proof-columns">amount 1 · status 1</span></p><p><strong>Schema</strong><span id="proof-schema">region added</span></p><p><strong>Changed row</strong><span id="proof-row">A-101 · status: open → closed</span></p></div>
+        </div>
+        <p class="demo-status success" id="demo-status" role="status" aria-live="polite">Sample comparison loaded. It has 1 added, 1 removed, and 2 changed rows.</p>
+        <section class="demo-workbench" aria-labelledby="workbench-title">
+        <div class="workbench-heading"><div><p class="line-label"><span>02</span> Your files</p><h2 id="workbench-title">Edit the sample demo</h2></div><p>Choose two small CSV files, select their shared row ID, then compare them in this tab.</p></div>
         <div class="demo-controls">
           <div class="file-platform"><label for="old-file">Old CSV</label><input id="old-file" type="file" accept=".csv,text/csv" /><span id="old-file-name">sample-old.csv · 3 rows</span></div>
           <div class="junction" aria-hidden="true"><span></span><b>KEY</b><span></span></div>
           <div class="file-platform"><label for="new-file">New CSV</label><input id="new-file" type="file" accept=".csv,text/csv" /><span id="new-file-name">sample-new.csv · 3 rows</span></div>
         </div>
         <div class="compare-bar"><div><label for="key-column">Primary key</label><select id="key-column"><option value="id">id</option></select></div><button class="button secondary" id="sample-button" type="button">Show sample comparison</button><button class="button primary" id="compare-button" type="button">Compare rows</button></div>
-        <p class="demo-status success" id="demo-status" role="status" aria-live="polite">Sample comparison loaded. It has 1 added, 1 removed, and 2 changed rows.</p>
-        <div class="demo-result" id="demo-result">
-          <div class="metric-grid" aria-label="Comparison counts"><div class="metric added"><span>Added</span><strong id="added-count">1</strong></div><div class="metric removed"><span>Removed</span><strong id="removed-count">1</strong></div><div class="metric modified"><span>Modified</span><strong id="modified-count">2</strong></div><div class="metric unchanged"><span>Unchanged</span><strong id="unchanged-count">0</strong></div></div>
+        <div class="demo-details">
           <div class="result-columns"><section aria-labelledby="column-result-title"><h2 id="column-result-title">Changes by column</h2><ul id="column-changes"><li>amount — 1</li><li>status — 1</li></ul></section><section aria-labelledby="schema-result-title"><h2 id="schema-result-title">Schema changes</h2><ul id="schema-changes"><li>Added: region</li></ul></section></div>
-          <section aria-labelledby="row-result-title"><h2 id="row-result-title">Changed-row sample</h2><div class="table-scroll" tabindex="0" aria-label="Changed rows, horizontally scrollable"><table id="change-table"><thead><tr><th scope="col">Status</th><th scope="col">Key (id)</th><th scope="col">Change</th></tr></thead><tbody><tr><td class="status-added">added</td><td>A-104</td><td>New row</td></tr><tr><td class="status-removed">removed</td><td>A-103</td><td>Old row</td></tr><tr><td class="status-modified">modified</td><td>A-101</td><td>status: open → closed</td></tr><tr><td class="status-modified">modified</td><td>A-102</td><td>amount: 80 → 84</td></tr></tbody></table></div></section>
+          <section aria-labelledby="row-result-title"><h2 id="row-result-title">Changed-row sample</h2><div class="table-scroll" tabindex="0" aria-label="Changed rows, horizontally scrollable"><table id="change-table"><thead><tr><th scope="col">Status</th><th scope="col">Key (id)</th><th scope="col">Change</th></tr></thead><tbody><tr><td class="status-added">added</td><td>A-104</td><td>New row</td></tr><tr><td class="status-removed">removed</td><td>A-103</td><td>Old row</td></tr><tr><td class="status-modified">changed</td><td>A-101</td><td>status: open → closed</td></tr><tr><td class="status-modified">changed</td><td>A-102</td><td>amount: 80 → 84</td></tr></tbody></table></div></section>
         </div>
+        </section>
       </section>
     </main>
     <footer><div class="brand footer-brand"><span>tdiff</span><small>Compare local keyed data files.</small></div><nav aria-label="Footer navigation"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="https://github.com/B-Divyesh/sf-tabular-file-diff">Source on GitHub <span class="external">↗</span></a></nav><p>MIT licensed · Built by Param Factory · 0.1.0</p></footer>

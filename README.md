@@ -3,21 +3,23 @@
 Compare keyed CSV, Parquet, and Arrow data snapshots.
 
 tdiff is for data engineers and analysts reviewing versioned data in Git or DVC.
-It runs locally and has no telemetry.
+Package and CLI comparisons run locally without telemetry.
 
-Try the shipped browser sample at [tabular-file-diff.sociobot.in/demo/](https://tabular-file-diff.sociobot.in/demo/).
-The browser preview compares CSV only.
-Run `tdiff demo` to run the installed package on its bundled sample.
+Try the [sample demo](https://tabular-file-diff.sociobot.in/demo/).
+It compares shipped or selected CSV files in your browser tab.
+Run `tdiff demo` to compare the bundled files with the installed package.
 
 ## Install
+
+tabular-file-diff supports Python 3.10 and later.
 
 ```bash
 python3 -m pip install tabular-file-diff
 tdiff demo
 ```
 
-The demo prints its temporary directory and writes an HTML report there.
-Its sample inputs also ship in [examples/](examples/).
+The package demo creates a temporary directory and writes a self-contained HTML report there.
+The bundled inputs are also in [examples/](examples/).
 
 ## Compare files
 
@@ -29,14 +31,14 @@ tdiff old.csv new.csv --key tenant_id,event_id
 tdiff old.arrow new.arrow --key id --tolerance 0.001
 ```
 
-tdiff reports added, removed, changed, and unchanged rows.
+tdiff compares CSV, gzip CSV, Parquet, and Arrow IPC files.
+It reports added, removed, changed, and unchanged rows.
 It also reports changed columns and schema changes.
-Supported files are CSV, gzip CSV, Parquet, and Arrow IPC.
 
 `--tolerance` applies only to numeric values.
-A row is unchanged when the absolute difference is at most the tolerance.
-Null versus non-null is always a change.
-It defaults to `0`, so comparisons are exact.
+The numeric boundary is inclusive.
+Null versus non-null remains a change.
+The default is `0`, which makes numeric comparisons exact.
 
 Write JSON or a self-contained HTML report:
 
@@ -45,14 +47,14 @@ tdiff old.parquet new.parquet --key account_id --json
 tdiff old.parquet new.parquet --key account_id --html report.html
 ```
 
-The CLI returns `0` for no differences and `1` for differences.
+The CLI returns `0` for no changes and `1` for differences.
 It returns `2` for invalid input or operational errors.
-Duplicate or null key values are rejected.
+Duplicate or null primary keys are rejected.
 
 ## Python API
 
 `diff_files` returns a typed `DiffResult`.
-Its added, removed, and modified values are PyArrow tables.
+Its added, removed, and modified results are PyArrow tables.
 
 ```python
 from tabular_file_diff import diff_files
@@ -79,11 +81,10 @@ Compare a DVC revision with the workspace:
 tdiff-dvc data/snapshot.parquet --from v1 --to workspace --key id
 ```
 
-`tdiff-dvc` materializes the requested revision in a temporary directory.
+`tdiff-dvc` materializes the revision in a temporary directory.
+It removes the temporary files when the comparison finishes.
 
 ## Develop and verify
-
-Python 3.10 or later is required.
 
 ```bash
 python3 -m venv .venv
@@ -95,7 +96,7 @@ mypy src/tabular_file_diff
 python3 -m build
 ```
 
-Build and test the static docs and sample preview:
+Build and test the static docs and sample demo:
 
 ```bash
 npm ci
@@ -104,18 +105,12 @@ npm run build:site
 npm run test:a11y
 ```
 
-Run every visitor claim from [`.factory/claims.json`](.factory/claims.json):
+Run every visitor claim listed in [`.factory/claims.json`](.factory/claims.json).
+Each entry contains its exact clean-state command.
 
-```bash
-npm run test:claims -- --grep @claim:demo-one-click
-python3 -m pytest tests/test_claims.py
-```
-
-Deploy the static site by pushing `main`; the factory deploys `dist/site`.
-The package is ready for `python3 -m build`.
+The factory deploys `dist/site` when `main` is pushed.
 Registry credentials are not kept in this repository.
 
 ## License
 
 tdiff is free software under the [MIT License](LICENSE).
-
